@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 
 const propertyRoutes = require('./routes/property-routes')
+const userRoutes = require('./routes/user-routes')
 
 app.use(express.json());
 app.use(express.urlencoded());
@@ -21,6 +22,7 @@ app.get('/', (req, res, next) => {
 })
 
 app.use('/api/properties', propertyRoutes);
+app.use('/api/users', userRoutes)
 
 
 app.listen(5000);
