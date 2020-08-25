@@ -18637,6 +18637,42 @@ router.post(
         res.json(newProperty);
 })
 
+//update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
+router.patch('/update/:id', (req, res, next) => {
+    const subjectPropertyIndex = newProperties.findIndex(p => p.id === parseInt(req.params.id));
+    const subjectProperty = newProperties.find(p => p.id === parseInt(req.params.id));
+    if (subjectPropertyIndex === -1) return res.status(404).send('Property not found');
+
+    const { rent, beds, baths, size, dogs, cats, neighborhood, laundry, utilities } = req.body;
+    let updatedProperty = {
+        ...subjectProperty, 
+        details: {
+            rent,
+            beds,
+            baths,
+            size,
+            pet_policy: {
+                dogs,
+                cats
+            },
+            neighborhood,
+            laundry,
+            utilities
+        }
+    };
+    newProperties.splice(subjectPropertyIndex, 1, updatedProperty);
+    res.json(newProperties);
+})
+
+//remove a property
+router.delete('/delete/:id', (req, res, next) => {
+    const subjectPropertyIndex = newProperties.findIndex(p => p.id === parseInt(req.params.id));
+    if (subjectPropertyIndex === -1) return res.status(404).send('Property not found with the given id');
+    newProperties.splice(subjectPropertyIndex, 1);
+    res.send('Property deleted')
+})
+
+
 // router.get('/all', (req, res, next) => {
 //     let formattedProps = properties.map(p => {
 //         if (p.details.rent.length > 1) {
