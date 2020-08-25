@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const HttpError = require('../models/http-error');
+const { check, validationResult } = require('express-validator');
 
 //register new user
 
@@ -32,22 +34,45 @@ let users = [
     }
 ]
 
-router.post('/register', (req, res, next) => {
-    let {email, password, lister, first_name, last_name, company, phone} = req.body;
-    let existingUser = users.find(u => u.email === email);
-    if (existingUser) return res.status(400).send('User already exists');
-    let newUser = {
-        id: users.length + 1,
-        email,
-        password,
-        lister,
-        first_name,
-        last_name,
-        company,
-        phone
-    }
-    users.push(newUser);
-    res.json(newUser);
+
+
+router.post(
+    '/register', 
+    [
+        check('email').isEmail(),
+        check('password').isLength({min: 8})
+    ], 
+    (req, res, next) => {
+        //check if req.body.email is valid email & password is min-length 8
+        const validationErrors = validationResult(req);
+        if (!validationErrors.isEmpty()) {
+            console.log(validationErrors);
+            throw new HttpError('Invalid inputs passed, please check your data.', 422);
+        }
+
+        let {email, password, lister, first_name, last_name, company, phone} = req.body;
+        let existingUser = users.find(u => u.email === email);
+        if (existingUser) return res.status(400).send('User already exists');
+        let newUser = {
+            id: users.length + 1,
+            email,
+            password,
+            lister,
+            first_name,
+            last_name,
+            company,
+            phone
+        }
+        users.push(newUser);
+        res.json(newUser);
+})
+
+// log in
+router.post('/login', (req, res, next) => {
+    let {email, password} = req.body;
+    let matchedUser = users.find(u => u.email === email && u.password === password);
+    if (!matchedUser) return res.status(400).send('Invalid email and/or password');
+    res.json(matchedUser);
 })
 
 router.get('/', (req, res, next) => {
