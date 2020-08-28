@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
+const fileUpload = require('express-fileupload');
 
 const propertyRoutes = require('./routes/property-routes')
 const userRoutes = require('./routes/user-routes')
 
-app.use(express.json());
-app.use(express.urlencoded());
+//------------MIDDLEWARE------------------
+//parse incoming file uploads and append to req.file
+app.use(fileUpload());
 
 //cors middleware
 app.use((req, res, next) => {
@@ -15,7 +17,13 @@ app.use((req, res, next) => {
     next();
 })
 
-//routes
+
+
+//body parser stuff
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+//--------------ROUTES-----------------------
 
 app.get('/', (req, res, next) => {
     res.send('Hello World')
