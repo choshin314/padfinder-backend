@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const HttpError = require('../models/http-error');
-const { check, validationResult } = require('express-validator');
 
 //register new user
 
@@ -36,41 +35,29 @@ let users = [
 
 
 
-router.post(
-    '/register', 
-    [
-        check('email').isEmail(),
-        check('password').isLength({min: 8})
-    ], 
-    (req, res, next) => {
-        //check if req.body.email is valid email & password is min-length 8
-        const validationErrors = validationResult(req);
-        if (!validationErrors.isEmpty()) {
-            console.log(validationErrors);
-            throw new HttpError('Invalid inputs passed, please check your data.', 422);
-        }
+router.post('/register', (req, res, next) => {
 
-        let {email, password, isLister, first_name, last_name, company, phone} = req.body;
-        let existingUser = users.find(u => u.email === email);
-        if (existingUser) return res.status(400).json('User already exists');
-        let newUser = {
-            id: users.length + 1,
-            email,
-            password,
-            isLister,
-            first_name,
-            last_name,
-            company,
-            phone
-        }
-        users.push(newUser);
-        res.json({
-            id: newUser.id,
-            phone: newUser.phone,
-            company: newUser.company,
-            email: newUser.email,
-            isLister: newUser.isLister
-        });
+    let {email, password, isLister, first_name, last_name, company, phone} = req.body;
+    let existingUser = users.find(u => u.email === email);
+    if (existingUser) return res.status(400).json('User already exists');
+    let newUser = {
+        id: users.length + 1,
+        email,
+        password,
+        isLister,
+        first_name,
+        last_name,
+        company,
+        phone
+    }
+    users.push(newUser);
+    res.status(201).json({
+        id: newUser.id,
+        phone: newUser.phone,
+        company: newUser.company,
+        email: newUser.email,
+        isLister: newUser.isLister
+    });
 })
 
 // log in
@@ -81,7 +68,7 @@ router.post('/login', (req, res, next) => {
         return ((u.email.toLowerCase() === email.toLowerCase()) && (u.password === password))
     });
     if (!matchedUser) return res.status(400).json('Invalid email and/or password');
-    res.json({
+    res.status(200).json({
         id: matchedUser.id,
         phone: matchedUser.phone,
         company: matchedUser.company,

@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
-const { check, validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error');
-const validateIncomingValues = require('../util/validation');
 const uploadFile = require('../util/google-storage');
 
 // const properties = require('../formattedProperties.json')
@@ -18597,57 +18595,46 @@ router.get('/nearby/:lat-:lng', (req, res, next) => {
 
 
 //create new property
-router.post(
-    '/new', 
-    [
-        check('address.street').isLength({min: 4}),
-        check('address.city').isLength({min: 2}),
-        check('address.state').isLength(2),
-        check('address.zip').isLength(5)
-    ], 
-    async (req, res, next) => {
-        validateIncomingValues(req, next)
+router.post('/new', async (req, res, next) => {
 
-        if (!req.files) return res.status(400).json({ msg: 'No files were uploaded' })
-
-        let files = req.files.photos; 
-        //move each photo to uploads/images
-        files.map(file => {
-            file.mv(`./uploads/images/${file.name}`)
-        })
-        //upload photos to google cloud
-        try {
-            for (const file of files) {
-                await uploadFile(`./uploads/images/${file.name}`)
-            }
-        } catch(error) {
-            console.log(error)
+    let files = req.files.photos; 
+    //move each photo to uploads/images
+    files.map(file => {
+        file.mv(`./uploads/images/${file.name}`)
+    })
+    //upload photos to google cloud
+    try {
+        for (const file of files) {
+            await uploadFile(`./uploads/images/${file.name}`)
         }
+    } catch(error) {
+        console.log(error)
+    }
 
-        const {type, available_date, address, details, creator} = req.body;
-        //check if property already exists
-        let existingProperty = newProperties.find(p => p.address.street === address.street && p.address.zip === address.zip);
-        if (existingProperty) return res.status(400).send('Property already listed');
-        
-        //create new property
-        let newProperty = {
-            id: newProperties.length + 1,
-            type: JSON.parse(type),
-            available_date: JSON.parse(available_date),
-            address: JSON.parse(address),
-            details: JSON.parse(details),
-            creator: JSON.parse(creator),
-            photos: files.map(file => ({ filename: file.name })) //only need to save reference to file name since all URLs are the same up to file name
-        };
+    const {type, available_date, address, details, creator} = req.body;
+    //check if property already exists
+    let existingProperty = newProperties.find(p => p.address.street === address.street && p.address.zip === address.zip);
+    if (existingProperty) return res.status(400).send('Property already listed');
+    
+    //create new property
+    let newProperty = {
+        id: newProperties.length + 1,
+        type: JSON.parse(type),
+        available_date: JSON.parse(available_date),
+        address: JSON.parse(address),
+        details: JSON.parse(details),
+        creator: JSON.parse(creator),
+        photos: files.map(file => ({ filename: file.name })) //only need to save reference to file name since all URLs are the same up to file name
+    };
 
-        //save new property
-        newProperties.push(newProperty);
+    //save new property
+    newProperties.push(newProperty);
 
-        //delete local photo files after upload to google 
-        files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
-        
-        //send new property back to frontend
-        res.json(newProperty);
+    //delete local photo files after upload to google 
+    files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
+    
+    //send new property back to frontend
+    res.json(newProperty);
 })
 
 //update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
