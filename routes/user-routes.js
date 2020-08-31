@@ -10,13 +10,13 @@ let users = [
         id: "1",
         email: "john@test.com",
         password: "password",
-        lister: false
+        isLister: false
     },
     {
         id: "2",
         email: "bob@test.com",
         password: "password",
-        lister: true,
+        isLister: true,
         first_name: "Bob",
         last_name: "Smith",
         company: "Bob Smith Properties",
@@ -26,7 +26,7 @@ let users = [
         id: "3",
         email: "jim@test.com",
         password: "password",
-        lister: true,
+        isLister: true,
         first_name: "Jim",
         last_name: "Jimmerson",
         company: "Jim Jimmerson Properties",
@@ -50,29 +50,44 @@ router.post(
             throw new HttpError('Invalid inputs passed, please check your data.', 422);
         }
 
-        let {email, password, lister, first_name, last_name, company, phone} = req.body;
+        let {email, password, isLister, first_name, last_name, company, phone} = req.body;
         let existingUser = users.find(u => u.email === email);
-        if (existingUser) return res.status(400).send('User already exists');
+        if (existingUser) return res.status(400).json('User already exists');
         let newUser = {
             id: users.length + 1,
             email,
             password,
-            lister,
+            isLister,
             first_name,
             last_name,
             company,
             phone
         }
         users.push(newUser);
-        res.json(newUser);
+        res.json({
+            id: newUser.id,
+            phone: newUser.phone,
+            company: newUser.company,
+            email: newUser.email,
+            isLister: newUser.isLister
+        });
 })
 
 // log in
 router.post('/login', (req, res, next) => {
     let {email, password} = req.body;
-    let matchedUser = users.find(u => u.email === email && u.password === password);
-    if (!matchedUser) return res.status(400).send('Invalid email and/or password');
-    res.json(matchedUser);
+    console.log(req.body);
+    let matchedUser = users.find(u => {
+        return ((u.email.toLowerCase() === email.toLowerCase()) && (u.password === password))
+    });
+    if (!matchedUser) return res.status(400).json('Invalid email and/or password');
+    res.json({
+        id: matchedUser.id,
+        phone: matchedUser.phone,
+        company: matchedUser.company,
+        email: matchedUser.email,
+        isLister: matchedUser.isLister
+    });
 })
 
 router.get('/', (req, res, next) => {

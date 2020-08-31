@@ -1,9 +1,16 @@
+require('dotenv').config();
+const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 const fileUpload = require('express-fileupload');
 
 const propertyRoutes = require('./routes/property-routes')
 const userRoutes = require('./routes/user-routes')
+
+//------------DB-------------------------
+const dbUri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.fvtaz.mongodb.net/padfinder?retryWrites=true&w=majority`
+mongoose.connect(dbUri)
+    .then(() => console.log('Connected to MongoDB'))
 
 //------------MIDDLEWARE------------------
 //parse incoming file uploads and append to req.file
@@ -33,4 +40,4 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/users', userRoutes)
 
 
-app.listen(5000);
+app.listen(process.env.PORT, () => console.log(`Listening on ${process.env.PORT}`));
