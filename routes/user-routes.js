@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const HttpError = require('../models/http-error');
 const { User, userSchema, validateUser } = require('../models/user-model')
@@ -103,7 +103,7 @@ router.post('/login', async (req, res, next) => {
         isPasswordValid = await bcrypt.compare(password, matchedUser.password);
         if (!isPasswordValid) throw new Error;
     } catch(err) {
-        const error = new HttpError('Please check your credentials and try again', 500);
+        const error = new HttpError('Please check your credentials and try again', 403);
         return next(error);
     }
 
@@ -115,7 +115,7 @@ router.post('/login', async (req, res, next) => {
             process.env.SECRET_KEY
         ) 
     } catch(err) {
-        const error = new HttpError('Registration failed, please try again later', 500)
+        const error = new HttpError('Log in failed, please try again later', 500)
         return next(error);
     }
 

@@ -27,6 +27,7 @@ function validateUser(user) {
         company: Joi.string(),
         phone: Joi.string().length(10)
     })
+    return validationSchema.validate(user)
 }
 
 module.exports = { User, userSchema, validateUser }
