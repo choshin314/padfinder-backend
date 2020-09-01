@@ -1,79 +1,135 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const HttpError = require('../models/http-error');
+const { User, userSchema, validateUser } = require('../models/user-model')
 
 //register new user
 
-let users = [
-    {
-        id: "1",
-        email: "john@test.com",
-        password: "password",
-        isLister: false
-    },
-    {
-        id: "2",
-        email: "bob@test.com",
-        password: "password",
-        isLister: true,
-        first_name: "Bob",
-        last_name: "Smith",
-        company: "Bob Smith Properties",
-        phone: "1234567890"
-    },
-    {
-        id: "3",
-        email: "jim@test.com",
-        password: "password",
-        isLister: true,
-        first_name: "Jim",
-        last_name: "Jimmerson",
-        company: "Jim Jimmerson Properties",
-        phone: "2345678901"
+router.post('/register', async (req, res, next) => {
+    const validationResult = validateUser(req.body);
+    if (validationResult.error) {
+        const error = new HttpError(validationResult.error.details[0].message, 422)
+        return next(error); //if data fails Joi validation, kick this to the error handler middleware
     }
-]
-
-
-
-router.post('/register', (req, res, next) => {
 
     let {email, password, isLister, first_name, last_name, company, phone} = req.body;
-    let existingUser = users.find(u => u.email === email);
-    if (existingUser) return res.status(400).json('User already exists');
-    let newUser = {
-        id: users.length + 1,
+    
+    //check if user account already exists
+    let existingUser; 
+    try {
+        existingUser = await User.findOne( {email: email.toLowerCase()} )
+    } catch (err) {
+        const error = new HttpError('Registration failed.  Try again later.', 500)
+        return next(error) //this is NOT to address user already existing.  This is to address if the process of checking if user exists fails
+    }
+
+    if (existingUser) {
+        const error = new HttpError('User already exists', 422);
+        return next(error);
+    }
+
+    //hash the password
+    let hashedPassword;
+    try {
+        hashedPassword = await bcrypt.hash(password, 8)
+    } catch(err) {
+        const error = new HttpError('Could not create user, please try again', 500)
+        return next(error);
+    }
+
+    //create new user in the database
+    const newUser = new User({
         email,
-        password,
+        password: hashedPassword,
         isLister,
         first_name,
         last_name,
         company,
-        phone
+        phone,
+        properties: []
+    })
+
+    try {
+        await newUser.save();
+    } catch(err) {
+        const error = new HttpError('Could not save new user', 500);
+        return next(error);
     }
-    users.push(newUser);
+    
+    //create jwt and send it back to client
+    let token;
+    try {
+        token = await jwt.sign(
+            { userId: newUser.id, email: newUser.email },
+            process.env.SECRET_KEY
+        ) 
+    } catch(err) {
+        const error = new HttpError('Registration failed, please try again later', 500)
+        return next(error);
+    }
+
+    //send newUser properties + token back to client
     res.status(201).json({
-        id: newUser.id,
-        phone: newUser.phone,
-        company: newUser.company,
+        userId: newUser.id,
         email: newUser.email,
-        isLister: newUser.isLister
+        isLister: newUser.isLister,
+        first_name: newUser.first_name,
+        last_name: newUser.last_name,
+        company: newUser.company,
+        phone: newUser.phone,
+        properties: newUser.properties,
+        token
     });
 })
 
 // log in
-router.post('/login', (req, res, next) => {
+router.post('/login', async (req, res, next) => {
     let {email, password} = req.body;
-    console.log(req.body);
-    let matchedUser = users.find(u => {
-        return ((u.email.toLowerCase() === email.toLowerCase()) && (u.password === password))
-    });
-    if (!matchedUser) return res.status(400).json('Invalid email and/or password');
+    
+    //find matching account by email
+    let matchedUser;
+    try {
+        matchedUser = await User.findOne({ email: email })
+    } catch(err) {
+        const error = new HttpError('Could not log in', 500);
+        return next(error);
+    }
+
+    //compare submitted password to hash
+    let isPasswordValid;
+    try {
+        isPasswordValid = await bcrypt.compare(password, matchedUser.password);
+        if (!isPasswordValid) throw new Error;
+    } catch(err) {
+        const error = new HttpError('Please check your credentials and try again', 500);
+        return next(error);
+    }
+
+    //create jwt and send it back to client
+    let token;
+    try {
+        token = await jwt.sign(
+            { userId: matchedUser.id, email: matchedUser.email },
+            process.env.SECRET_KEY
+        ) 
+    } catch(err) {
+        const error = new HttpError('Registration failed, please try again later', 500)
+        return next(error);
+    }
+
+    //send newUser properties + token back to client
     res.status(200).json({
-        id: matchedUser.id,
-        phone: matchedUser.phone,
-        company: matchedUser.company,
+        userId: matchedUser.id,
         email: matchedUser.email,
-        isLister: matchedUser.isLister
+        isLister: matchedUser.isLister,
+        first_name: matchedUser.first_name,
+        last_name: matchedUser.last_name,
+        company: matchedUser.company,
+        phone: matchedUser.phone,
+        properties: matchedUser.properties,
+        token
     });
 })
 

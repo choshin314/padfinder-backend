@@ -24,8 +24,6 @@ app.use((req, res, next) => {
     next();
 })
 
-
-
 //body parser stuff
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -38,6 +36,13 @@ app.get('/', (req, res, next) => {
 
 app.use('/api/properties', propertyRoutes);
 app.use('/api/users', userRoutes)
+
+//------------ERROR HANDLING----------------
+app.use((err, req, res, next) => {
+    console.log(err);
+    res.status(err.code || 500);
+    res.json({ message: err.message || 'An unknown error occurred!' })
+})
 
 
 app.listen(process.env.PORT, () => console.log(`Listening on ${process.env.PORT}`));
