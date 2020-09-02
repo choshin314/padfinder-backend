@@ -22,10 +22,10 @@ function validateUser(user) {
         email: Joi.string().email().min(5).max(50).required(),
         password: Joi.string(),
         isLister: Joi.boolean().required(),
-        first_name: Joi.string().min(2),
-        last_name: Joi.string().min(2),
-        company: Joi.string(),
-        phone: Joi.string().length(10)
+        first_name: Joi.when('isLister', { is: true, then: Joi.string().required().min(2) }),
+        last_name: Joi.when('isLister', { is: true, then: Joi.string().required().min(2) }),
+        company: Joi.when('isLister', { is: true, then: Joi.string() }),
+        phone: Joi.when('isLister', { is: true, then: Joi.string().required().length(10) })
     })
     return validationSchema.validate(user)
 }
