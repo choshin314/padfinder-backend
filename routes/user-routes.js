@@ -44,11 +44,12 @@ router.post('/register', async (req, res, next) => {
         email,
         password: hashedPassword,
         isLister,
-        first_name,
-        last_name,
-        company,
-        phone,
-        properties: []
+        first_name: first_name ? first_name : undefined,
+        last_name: last_name ? last_name : undefined,
+        company: company ? company : undefined,
+        phone: phone ? phone : undefined,
+        properties: [],
+        favorites: []
     })
 
     try {
@@ -80,6 +81,7 @@ router.post('/register', async (req, res, next) => {
         company: newUser.company,
         phone: newUser.phone,
         properties: newUser.properties,
+        favorites: newUser.favorites,
         token
     });
 })
@@ -129,6 +131,7 @@ router.post('/login', async (req, res, next) => {
         company: matchedUser.company,
         phone: matchedUser.phone,
         properties: matchedUser.properties,
+        favorites: matchedUser.favorites,
         token
     });
 })
