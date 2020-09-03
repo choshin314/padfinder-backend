@@ -1,10 +1,11 @@
 const HttpError = require('../models/http-error')
-const axios = require('axios').default;
+const axios = require('axios');
 
 const getCoordinates = async (address, next) => {
     let coordinates;
     try {
-        const responseData = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.MAPS_KEY}`);
+        const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.MAPS_KEY}`);
+        const responseData = response.data;
         switch (responseData.status) {
             case "OK": 
                 coordinates = responseData.results[0].geometry.location; 
@@ -25,6 +26,7 @@ const getCoordinates = async (address, next) => {
     } catch (err) {
         return next(err)
     }
+    console.log(coordinates)
     return coordinates;
 }
 
