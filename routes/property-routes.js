@@ -4,6 +4,8 @@ const fs = require('fs');
 
 const HttpError = require('../models/http-error');
 const uploadFile = require('../util/google-storage');
+const getCoordinates = require('../util/google-coordinates');
+const { Property, validateProperty } = require('../models/property-model');
 
 // const properties = require('../formattedProperties.json')
 
@@ -18596,7 +18598,21 @@ router.get('/nearby/:lat-:lng', (req, res, next) => {
 
 //create new property
 router.post('/new', async (req, res, next) => {
+    const {type, available_date, address, details, creator} = req.body;
+    let parsedFormData = {
+        type: JSON.parse(type),
+        available_date: JSON.parse(available_date),
+        address: JSON.parse(address),
+        details: JSON.parse(details),
+        creator: JSON.parse(creator)
+    }
+    const validationResult = validateProperty(parsedFormData)
+    console.log(validationResult);
+    //check if property already exists
+    let existingProperty = newProperties.find(p => p.address.street === address.street && p.address.zip === address.zip);
+    if (existingProperty) return res.status(400).send('Property already listed');
 
+    //----------------------PHOTO UPLOAD-------------------//
     let files = req.files.photos; 
     //move each photo to uploads/images
     files.map(file => {
@@ -18611,30 +18627,38 @@ router.post('/new', async (req, res, next) => {
         console.log(error)
     }
 
-    const {type, available_date, address, details, creator} = req.body;
-    //check if property already exists
-    let existingProperty = newProperties.find(p => p.address.street === address.street && p.address.zip === address.zip);
-    if (existingProperty) return res.status(400).send('Property already listed');
     
+    
+    //get coordinates
+    const { street, city, state, zip } = address;
+    let queryString = `${street}+${city}+${state}+${zip}`;
+    queryString = queryString.replace(/(\s)/g, '+');
+    const coordinates = await getCoordinates(queryString, next);
+
     //create new property
-    let newProperty = {
-        id: newProperties.length + 1,
+    let newProperty = new Property({
         type: JSON.parse(type),
         available_date: JSON.parse(available_date),
         address: JSON.parse(address),
+        coordinates: coordinates,
         details: JSON.parse(details),
-        creator: JSON.parse(creator),
-        photos: files.map(file => ({ filename: file.name })) //only need to save reference to file name since all URLs are the same up to file name
-    };
+        photos: files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` })) ,
+        creator: JSON.parse(creator)
+    });
 
     //save new property
-    newProperties.push(newProperty);
+    try {
+        await newProperty.save()
+    } catch(err) {
+        const error = new HttpError(err.message, 500);
+        return next(error);
+    }
 
     //delete local photo files after upload to google 
     files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
     
     //send new property back to frontend
-    res.json(newProperty);
+    res.status(201).json(newProperty);
 })
 
 //update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
@@ -18647,10 +18671,10 @@ router.patch('/update/:id', (req, res, next) => {
     let updatedProperty = {
         ...subjectProperty, 
         details: {
-            rent,
-            beds,
-            baths,
-            size,
+            rent: parseInt(rent),
+            beds: parseInt(beds),
+            baths: parseInt(baths),
+            size: parseInt(size),
             pet_policy: {
                 dogs,
                 cats
