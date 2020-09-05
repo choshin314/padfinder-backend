@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 const fileUpload = require('express-fileupload');
+const cors = require('cors')
 
 const propertyRoutes = require('./routes/property-routes')
 const userRoutes = require('./routes/user-routes')
@@ -17,12 +18,7 @@ mongoose.connect(dbUri)
 app.use(fileUpload());
 
 //cors middleware
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
-    next();
-})
+app.use(cors())
 
 //body parser stuff
 app.use(express.json());
