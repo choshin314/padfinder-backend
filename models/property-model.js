@@ -57,8 +57,7 @@ const validateProperty = (property) => {
             utilities: Joi.string().required(),
             parking: Joi.string().required(),
         },
-        photos: Joi.array(),
-        creator: Joi.string()
+        photos: Joi.array()
     })
 
     return validationSchema.validate(property)

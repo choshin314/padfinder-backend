@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 
+const verifyAuth = require('../middleware/authorization');
 const HttpError = require('../models/http-error');
 const uploadFile = require('../util/google-storage');
 const getCoordinates = require('../util/google-coordinates');
@@ -18595,6 +18596,8 @@ router.get('/nearby/:lat-:lng', (req, res, next) => {
 })
 
 
+//ROUTE PROTECTION (Auth required for routes below)
+router.use(verifyAuth);
 
 //create new property
 router.post('/new', async (req, res, next) => {
@@ -18603,8 +18606,7 @@ router.post('/new', async (req, res, next) => {
         type: JSON.parse(type),
         available_date: JSON.parse(available_date),
         address: JSON.parse(address),
-        details: JSON.parse(details),
-        creator: JSON.parse(creator)
+        details: JSON.parse(details)
     }
     const validationResult = validateProperty(parsedFormData)
     console.log(validationResult);
@@ -18615,20 +18617,19 @@ router.post('/new', async (req, res, next) => {
     //----------------------PHOTO UPLOAD-------------------//
     let files = req.files.photos; 
     //move each photo to uploads/images
-    files.map(file => {
+    for (const file of files) {
         file.mv(`./uploads/images/${file.name}`)
-    })
+    }
     //upload photos to google cloud
     try {
         for (const file of files) {
             await uploadFile(`./uploads/images/${file.name}`)
         }
-    } catch(error) {
-        console.log(error)
+    } catch(err) {
+        const error = new HttpError('Could not upload images.  Please try again later.', 500);
+        return next(error);
     }
 
-    
-    
     //get coordinates
     const { street, city, state, zip } = address;
     let queryString = `${street}+${city}+${state}+${zip}`;
@@ -18637,13 +18638,10 @@ router.post('/new', async (req, res, next) => {
 
     //create new property
     let newProperty = new Property({
-        type: JSON.parse(type),
-        available_date: JSON.parse(available_date),
-        address: JSON.parse(address),
+        ...parsedFormData,
         coordinates: coordinates,
-        details: JSON.parse(details),
-        photos: files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` })) ,
-        creator: JSON.parse(creator)
+        photos: files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` })),
+        creator: req.userData.userId
     });
 
     //save new property
