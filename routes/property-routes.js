@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const fs = require('fs');
 
@@ -7,6 +8,7 @@ const HttpError = require('../models/http-error');
 const uploadFile = require('../util/google-storage');
 const getCoordinates = require('../util/google-coordinates');
 const { Property, validateProperty } = require('../models/property-model');
+const { User } = require('../models/user-model');
 
 // const properties = require('../formattedProperties.json')
 
@@ -18644,9 +18646,23 @@ router.post('/new', async (req, res, next) => {
         creator: req.userData.userId
     });
 
-    //save new property
+    //grab the associated User by UserId
+    let user;
     try {
-        await newProperty.save()
+        user = await User.findById(req.userData.userId)
+    } catch(err) {
+        const error = new HttpError('Could not find user for provided user ID', 404);
+        return next(error)
+    }
+
+    /*Transaction: 1) Save new property, 2) Add new property ID to corresponding User*/ 
+    try {
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await newProperty.save({ session: sess });
+        user.properties.push(newProperty); //mongoose will just push the id, not the whole property
+        await user.save({session: sess});
+        await sess.commitTransaction();
     } catch(err) {
         const error = new HttpError(err.message, 500);
         return next(error);
