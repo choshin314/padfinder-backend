@@ -18613,8 +18613,17 @@ router.post('/new', async (req, res, next) => {
     const validationResult = validateProperty(parsedFormData)
     console.log(validationResult);
     //check if property already exists
-    let existingProperty = newProperties.find(p => p.address.street === address.street && p.address.zip === address.zip);
-    if (existingProperty) return res.status(400).send('Property already listed');
+    try {
+        let existingProperty = await Property.findOne({ 
+            'address.street': parsedFormData.address.street,
+            'address.zip': parsedFormData.address.zip
+        })
+        if (existingProperty) throw new Error();
+    } catch (err) {
+        const error = new HttpError('Property already listed', 400);
+        return next(error)
+    }
+    
 
     //----------------------PHOTO UPLOAD-------------------//
     let files = req.files.photos; 
