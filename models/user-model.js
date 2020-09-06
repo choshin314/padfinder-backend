@@ -26,7 +26,7 @@ function validateUser(user) {
         first_name: Joi.when('isLister', { is: true, then: Joi.string().required().min(2) }),
         last_name: Joi.when('isLister', { is: true, then: Joi.string().required().min(2) }),
         company: Joi.when('isLister', { is: true, then: Joi.string() }),
-        phone: Joi.when('isLister', { is: true, then: Joi.string().pattern(new RegExp('^\d{10}$')).required() })
+        phone: Joi.when('isLister', { is: true, then: Joi.string().pattern(new RegExp('^[0-9]{10}$')).required() })
     })
     return validationSchema.validate(user)
 }

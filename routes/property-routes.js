@@ -51,7 +51,7 @@ const dummyProperties = [
             },
             "neighborhood": "Green Park Gardens Condominiums"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/a2c4c5456e1062c3cdd5f869c4575d75c-f1597730887o.jpg"
             },
@@ -149,7 +149,7 @@ const dummyProperties = [
             },
             "neighborhood": "Heatherton"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/2c7039a11375e21faa7f638fe5c0c3e5c-f246966891o.jpg"
             },
@@ -468,7 +468,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/26b63db2a8a3a392aeb79a9876ad7436c-f2830051407o.jpg"
             },
@@ -724,7 +724,7 @@ const dummyProperties = [
             ],
             "pet_policy": {}
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1532186282/0060537773f5b43f9b9ede607c11d4c3c-f0o.jpg"
             },
@@ -942,7 +942,7 @@ const dummyProperties = [
             },
             "neighborhood": "East Post Point"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1428638263/0cbeca288de8d015e50bb7654b6172e3c-f0o.jpg"
             },
@@ -1132,7 +1132,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/76f6ff53f054b037d0153e3bbc703bdcc-f3585428720o.jpg"
             },
@@ -1265,7 +1265,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/6be4e1b2d49a1d9f0461956655411a64c-f1867049327o.jpg"
             },
@@ -1378,7 +1378,7 @@ const dummyProperties = [
             },
             "neighborhood": "Central West End"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/2070037336/63650f320e55ab8c7a77db21aed56e32c-f0o.jpg"
             },
@@ -1470,7 +1470,7 @@ const dummyProperties = [
             },
             "neighborhood": "Wellington Arms"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1756342895/f724512b29be43c82d081849686f0573c-f0o.jpg"
             },
@@ -1555,7 +1555,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/f8ff3324bf7a31022860dd3718774a95c-f1894192962o.jpg"
             },
@@ -1632,7 +1632,7 @@ const dummyProperties = [
             },
             "neighborhood": "Forest Park South East"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/e64e42291c6b9a487208512b19ea45b1c-f3577102671o.jpg"
             },
@@ -1709,7 +1709,7 @@ const dummyProperties = [
             },
             "neighborhood": "DeBaliviere Place"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/18aa76106f61aad591400195b78cbe61c-f3382915977o.jpg"
             },
@@ -1804,7 +1804,7 @@ const dummyProperties = [
             },
             "neighborhood": "Country Lane Woods"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/387467838/078ed53aa26ff18ea5377ee3cf379081c-f0o.jpg"
             },
@@ -1896,7 +1896,7 @@ const dummyProperties = [
             },
             "neighborhood": "Central West End"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/9b852401387cc118db20a8dcf6989fd1c-f2546033132o.jpg"
             },
@@ -1985,7 +1985,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown East St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/539901409/2922d7294ead62b7a9035ef83a141e7ec-f0o.jpg"
             },
@@ -2386,7 +2386,7 @@ const dummyProperties = [
             },
             "neighborhood": "Forest Park South East"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/981267698/94f60c1950babf007a559123baccdfb8c-f0o.jpg"
             },
@@ -2781,7 +2781,7 @@ const dummyProperties = [
             },
             "neighborhood": "Town and Country"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/4546c1d34da382d19b98a8e65adb4903c-f3277094978o.jpg"
             },
@@ -3158,7 +3158,7 @@ const dummyProperties = [
             },
             "neighborhood": "Cheltenham"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1792629871/ba39365ae19e33d7dc1f0723f194d7b1c-f0o.jpg"
             },
@@ -3520,7 +3520,7 @@ const dummyProperties = [
             },
             "neighborhood": "Central West End"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/f4461dee39555bd13bad9e55c974f4f2c-f2672660735o.jpg"
             },
@@ -3815,7 +3815,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/ec9339466bf23b97d0a59de73651ace6c-f1289829209o.jpg"
             },
@@ -4057,7 +4057,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown East St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1316643704/f729b8dd273bcaf37bdf4babec8b4689c-f0o.jpg"
             },
@@ -4260,7 +4260,7 @@ const dummyProperties = [
             },
             "neighborhood": "Mansions on the Plaza Condominiums"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/a8414a44759dbeadb3e6dd5fd0277ed6c-f4228963752o.jpg"
             },
@@ -4456,7 +4456,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/46088b88376029711c662e8da7656f3dc-f1046351045o.jpg"
             },
@@ -4635,7 +4635,7 @@ const dummyProperties = [
             },
             "neighborhood": "Forum Condominiums"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/034ceabaa306ee26b7e37759198346e6c-f93734267o.jpg"
             },
@@ -4808,7 +4808,7 @@ const dummyProperties = [
             },
             "neighborhood": "Delcrest"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/b38cf0c948a3f2a92d9d81012a07d60cc-f1362227398o.jpg"
             },
@@ -4962,7 +4962,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1563913559/75dc531c2ff1ad25f71458f1362a0f76c-f0o.jpg"
             },
@@ -5111,7 +5111,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown East St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/75dc8d870c0a9cda27b409c85c72ce65c-f997563287o.jpg"
             },
@@ -5239,7 +5239,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown West St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/2129305442/daece7de393f96fc5868eff6a4e21fcec-f0o.jpg"
             },
@@ -5355,7 +5355,7 @@ const dummyProperties = [
             },
             "neighborhood": "Peabody Darst Webbe"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/0302a8ef88bd0ef875f1845681e327f7c-f1703809736o.jpg"
             },
@@ -5438,7 +5438,7 @@ const dummyProperties = [
             },
             "neighborhood": "Clayton - Tamm"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/b0ef3a0c7626579958b4eef6319aa4e2c-f4191303966o.jpg"
             },
@@ -5512,7 +5512,7 @@ const dummyProperties = [
             },
             "neighborhood": "Central West End"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/ba5be41e9a748bdfa34bb826adb5b799c-f3007830585o.jpg"
             },
@@ -5559,7 +5559,7 @@ const dummyProperties = [
             },
             "neighborhood": "Compton Heights"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/bf0d05ad809ea9c48721a426e877fc40c-f209033212o.jpg"
             }
@@ -5603,7 +5603,7 @@ const dummyProperties = [
             },
             "neighborhood": "Central West End"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/64ab873524f346534532d38a7ccd80eac-f3766985807o.jpg"
             },
@@ -6195,7 +6195,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/790862469/45783e707a59151704f28ec6d33206dcc-f0o.jpg"
             },
@@ -6656,7 +6656,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown East St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1223477372/93fe4e018c2dc399bfef49a2eab06fecc-f0o.jpg"
             },
@@ -7096,7 +7096,7 @@ const dummyProperties = [
             },
             "neighborhood": "Le Pere Villa Place"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/4235498603/a062427c53bc3a9c7ed2f08349552bb1c-f0o.jpg"
             },
@@ -7527,7 +7527,7 @@ const dummyProperties = [
             },
             "neighborhood": "Forest Park South East"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/afb5f98fd2d29c27b5b5a89eeaf7fb7dc-f3038325661o.jpg"
             },
@@ -7910,7 +7910,7 @@ const dummyProperties = [
             },
             "neighborhood": "Central West End"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1143156425/11a3f9012f8d2417af8bd618ebc6ef6ac-f0o.jpg"
             },
@@ -8269,7 +8269,7 @@ const dummyProperties = [
             },
             "neighborhood": "Central West End"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/456456187/c01d813c970e22795b881329eec139afc-f0o.jpg"
             },
@@ -8610,7 +8610,7 @@ const dummyProperties = [
             },
             "neighborhood": "Soulard"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/3158561253/45081cc900d19f8ace3c38b23e9fac8fc-f0o.jpg"
             },
@@ -8927,7 +8927,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown East St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1311792295/67c37b42de2de175b6e9fd4d26c06a9ac-f0o.jpg"
             },
@@ -9244,7 +9244,7 @@ const dummyProperties = [
             },
             "neighborhood": "Le Pere Villa Place"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1723831823/90805a1a6cec77bbca742f9357a7b760c-f0o.jpg"
             },
@@ -9554,7 +9554,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/fda6000e96bef823adb90f23d4e63177c-f693943521o.jpg"
             },
@@ -9855,7 +9855,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/f0c02d8677c61f50617489df17479193c-f723954643o.jpg"
             },
@@ -10153,7 +10153,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/85704154/9c334e4c6f5ffcbe58f095b2fe51c0eec-f0o.jpg"
             },
@@ -10448,7 +10448,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/34dc402fa7001711e050f496a67a34b2c-f1956935140o.jpg"
             },
@@ -10738,7 +10738,7 @@ const dummyProperties = [
             },
             "neighborhood": "Prospect Creek"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/a70f69426eae50b12c30e643d940677bc-f4134130788o.jpg"
             },
@@ -11028,7 +11028,7 @@ const dummyProperties = [
             },
             "neighborhood": "Forest Park South East"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/a141478ab8ea20247f1d96defedc8777c-f3054658212o.jpg"
             },
@@ -11299,7 +11299,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1898925938/fd27c388c1851100f1cdb604d05d66e4c-f0o.jpg"
             },
@@ -11567,7 +11567,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1534008740/12898cb54ee0fc94f06a2cf00c9a0ef1c-f0o.jpg"
             },
@@ -11830,7 +11830,7 @@ const dummyProperties = [
             },
             "neighborhood": "Haskel Alexander Estate"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/284065816/a63ddcd92358d043a00489338b3da9dec-f0o.jpg"
             },
@@ -12092,7 +12092,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/771678957/55207a4b074d4a1f7db7ad0c1dbab2d5c-f0o.jpg"
             },
@@ -12352,7 +12352,7 @@ const dummyProperties = [
             },
             "neighborhood": "Central West End"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/3211193719/d23d468008acc2184ca8fd0a2c8d8adbc-f0o.jpg"
             },
@@ -12611,7 +12611,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1390598958/013a00b4cac54b094a00012c2abe90bfc-f0o.jpg"
             },
@@ -12865,7 +12865,7 @@ const dummyProperties = [
             },
             "neighborhood": "Woodridge House"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/3150405700/330248d51733ead0ebb0dea9578a4150c-f0o.jpg"
             },
@@ -13116,7 +13116,7 @@ const dummyProperties = [
             },
             "neighborhood": "Pheasant Run West"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/214d10437815313049469ac90acff86cc-f1513629065o.jpg"
             },
@@ -13361,7 +13361,7 @@ const dummyProperties = [
             },
             "neighborhood": "Oxford Hill"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/326101e86e87e8f47338b536b508ff95c-f1237962280o.jpg"
             },
@@ -13597,7 +13597,7 @@ const dummyProperties = [
             },
             "neighborhood": "Midtown"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1509775065/afe6639e7d8a677023706ee11edc8dccc-f0o.jpg"
             },
@@ -13833,7 +13833,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown East St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/9b347bb882b5e0f0b05c1109aeda8e77c-f4241401891o.jpg"
             },
@@ -14057,7 +14057,7 @@ const dummyProperties = [
             },
             "neighborhood": "Craigmor"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/104697738/674ef9a86e7fa6b3dbc635718f356f16c-f0o.jpg"
             },
@@ -14278,7 +14278,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown East St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1775028796/41aefabda6ae020b9b07f0c40f9db537c-f0o.jpg"
             },
@@ -14499,7 +14499,7 @@ const dummyProperties = [
             },
             "neighborhood": "Tilles Park"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/378365689/32acd79034b1ac49f9043c44778fbda9c-f0o.jpg"
             },
@@ -14719,7 +14719,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/3755851550/e076b182e21e33364a31ce5ec72d5a6ac-f0o.jpg"
             },
@@ -14933,7 +14933,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/e27e6db7dfde38c2b4a7c0c3acab0706c-f2428681838o.jpg"
             },
@@ -15144,7 +15144,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/122db64e34b5fa03001ee61dee2a50c4c-f3492196836o.jpg"
             },
@@ -15355,7 +15355,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1316701798/40626a610daeff4ac17ac042b756493ec-f0o.jpg"
             },
@@ -15551,7 +15551,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/85e91f6b200857b4909b322dc21f9799c-f2449201556o.jpg"
             },
@@ -15748,7 +15748,7 @@ const dummyProperties = [
             },
             "neighborhood": "Whispering Lake"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/3648289502/41ec44e09aabaa6b2cc33773a07fdca9c-f0o.jpg"
             },
@@ -15941,7 +15941,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/bf16dfd00615cc7585f57e27ee1794b1c-f2873865441o.jpg"
             },
@@ -16132,7 +16132,7 @@ const dummyProperties = [
             },
             "neighborhood": "Lavinia Gardens"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/126873895/90383bdbf8218ad4b76272fdd67a48edc-f0o.jpg"
             },
@@ -16323,7 +16323,7 @@ const dummyProperties = [
             },
             "neighborhood": "Pavilion"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/8e480a2d2eca7922cdff8f9311d7cdb0c-f1655482655o.jpg"
             },
@@ -16510,7 +16510,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/82f5957cab264c34ef5b5483d3ed12e7c-f4160391913o.jpg"
             },
@@ -16698,7 +16698,7 @@ const dummyProperties = [
             },
             "neighborhood": "Downtown West St. Louis"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1039693679/f54d33fcf044f1dc0877c10e8789b9f9c-f0o.jpg"
             },
@@ -16879,7 +16879,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1190266709/f4510266cccaf262e5c29ae0bcd22b02c-f0o.jpg"
             },
@@ -17057,7 +17057,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/55423b334bf08f9766a610675f4b46dec-f2815576325o.jpg"
             },
@@ -17236,7 +17236,7 @@ const dummyProperties = [
             },
             "neighborhood": "La Maison Village"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1200228802/6720828d40d798c966a6dcb3faa6ced4c-f0o.jpg"
             },
@@ -17414,7 +17414,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/546097113/a3406e42315a67f5527d7c6a5938c3e5c-f0o.jpg"
             },
@@ -17589,7 +17589,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/e9f1d25c15e4f04d488130c4ef0237a0c-f1804823857o.jpg"
             },
@@ -17765,7 +17765,7 @@ const dummyProperties = [
             },
             "neighborhood": "Vantage Pointe"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/ab8c8f6bb491fbc2c5a2bb4530223af3c-f4064852993o.jpg"
             },
@@ -17938,7 +17938,7 @@ const dummyProperties = [
             },
             "neighborhood": "Enchanted Forest"
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/22da6404322f9390e7bd7d28f8d849bcc-f3335241855o.jpg"
             },
@@ -18110,7 +18110,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/0f558335b1607a4af5a0d2226c87cd12c-f3546457719o.jpg"
             },
@@ -18279,7 +18279,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/2011416705/4952a35cbc600a8df130812c2451cfdbc-f0o.jpg"
             },
@@ -18448,7 +18448,7 @@ const dummyProperties = [
                 "dogs": true
             }
         },
-        "images": [
+        "photos": [
             {
                 "href": "https://ar.rdcpix.com/1417702172/90b65bfe12e912d29ac87853ab2cfad4c-f0o.jpg"
             },
@@ -18685,7 +18685,18 @@ router.post('/new', async (req, res, next) => {
 })
 
 //get list of properties by User ID (creator)
-
+router.get('/:userId', async (req, res, next) => {
+    const userId = req.params.userId;
+    let listings;
+    try {
+        let user = await User.findById(userId).populate('listings');
+        listings = user.listings;
+    } catch(err) {
+        const error = new HttpError('Could not retrieve properties', 500);
+        return next(error);
+    }
+    res.status(200).json(listings);
+})
 
 //update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
 router.patch('/update/:id', (req, res, next) => {
