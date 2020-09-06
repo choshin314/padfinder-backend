@@ -48,7 +48,7 @@ router.post('/register', async (req, res, next) => {
         last_name: last_name ? last_name : undefined,
         company: company ? company : undefined,
         phone: phone ? phone : undefined,
-        properties: [],
+        listings: [],
         favorites: []
     })
 
@@ -80,7 +80,7 @@ router.post('/register', async (req, res, next) => {
         last_name: newUser.last_name,
         company: newUser.company,
         phone: newUser.phone,
-        properties: newUser.properties,
+        listings: newUser.listings,
         favorites: newUser.favorites,
         token
     });
@@ -130,7 +130,7 @@ router.post('/login', async (req, res, next) => {
         last_name: matchedUser.last_name,
         company: matchedUser.company,
         phone: matchedUser.phone,
-        properties: matchedUser.properties,
+        listings: matchedUser.listings,
         favorites: matchedUser.favorites,
         token
     });

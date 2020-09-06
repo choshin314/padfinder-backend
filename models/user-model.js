@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     last_name: { type: String, minlength: 2 },
     company: { type: String },
     phone: { type: String, minlength: 10, maxlength: 10 },
-    properties: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Property'}],
+    listings: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Property'}],
     favorites: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Property'}]
 })
 

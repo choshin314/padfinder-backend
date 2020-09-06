@@ -18660,7 +18660,7 @@ router.post('/new', async (req, res, next) => {
         const sess = await mongoose.startSession();
         sess.startTransaction();
         await newProperty.save({ session: sess });
-        user.properties.push(newProperty); //mongoose will just push the id, not the whole property
+        user.listings.push(newProperty); //mongoose will just push the id, not the whole property
         await user.save({session: sess});
         await sess.commitTransaction();
     } catch(err) {
@@ -18674,6 +18674,9 @@ router.post('/new', async (req, res, next) => {
     //send new property back to frontend
     res.status(201).json(newProperty);
 })
+
+//get list of properties by User ID (creator)
+
 
 //update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
 router.patch('/update/:id', (req, res, next) => {
