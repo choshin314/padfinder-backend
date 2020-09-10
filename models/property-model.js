@@ -25,7 +25,8 @@ const propertySchema = new mongoose.Schema({
         },
         neighborhood: String,
         laundry: String,
-        utilities: String
+        utilities: String,
+        parking: String
     },
     photos: [{ href: String }],
     creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User' }
