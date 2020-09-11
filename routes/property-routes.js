@@ -18603,7 +18603,7 @@ router.use(verifyAuth);
 
 //create new property
 router.post('/new', async (req, res, next) => {
-    const {type, available_date, address, details, creator} = req.body;
+    const {type, available_date, address, details} = req.body;
     let parsedFormData = {
         type: JSON.parse(type),
         available_date: JSON.parse(available_date),
@@ -18611,7 +18611,10 @@ router.post('/new', async (req, res, next) => {
         details: JSON.parse(details)
     }
     const validationResult = validateProperty(parsedFormData)
-    console.log(validationResult);
+    if (validationResult.error) {
+        const error = new HttpError(validationResult.error.details[0].message, 422)
+        return next(error); //if data fails Joi validation, kick this to the error handler middleware
+    }
     //check if property already exists
     try {
         let existingProperty = await Property.findOne({ 
@@ -18642,7 +18645,7 @@ router.post('/new', async (req, res, next) => {
     }
 
     //get coordinates
-    const { street, city, state, zip } = address;
+    const { street, city, state, zip } = parsedFormData.address;
     let queryString = `${street}+${city}+${state}+${zip}`;
     queryString = queryString.replace(/(\s)/g, '+');
     const coordinates = await getCoordinates(queryString, next);
@@ -18652,7 +18655,8 @@ router.post('/new', async (req, res, next) => {
         ...parsedFormData,
         coordinates: coordinates,
         photos: files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` })),
-        creator: req.userData.userId
+        creator: req.userData.userId,
+        favorited_by: []
     });
 
     //grab the associated User by UserId
@@ -18684,7 +18688,7 @@ router.post('/new', async (req, res, next) => {
     res.status(201).json(newProperty);
 })
 
-//get list of properties by User ID (creator)
+//get listings by User ID (creator)
 router.get('/:userId', async (req, res, next) => {
     const userId = req.params.userId;
     let listings;
@@ -18698,13 +18702,15 @@ router.get('/:userId', async (req, res, next) => {
     res.status(200).json(listings);
 })
 
+//get favorite properties by User ID
+
 //update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
 router.patch('/update/:id', (req, res, next) => {
     const subjectPropertyIndex = newProperties.findIndex(p => p.id === parseInt(req.params.id));
     const subjectProperty = newProperties.find(p => p.id === parseInt(req.params.id));
     if (subjectPropertyIndex === -1) return res.status(404).send('Property not found');
 
-    const { rent, beds, baths, size, dogs, cats, neighborhood, laundry, utilities } = req.body;
+    const { rent, beds, baths, size, dogs, cats, neighborhood, laundry, utilities, parking } = req.body;
     let updatedProperty = {
         ...subjectProperty, 
         details: {
@@ -18718,7 +18724,8 @@ router.patch('/update/:id', (req, res, next) => {
             },
             neighborhood,
             laundry,
-            utilities
+            utilities,
+            parking
         }
     };
     newProperties.splice(subjectPropertyIndex, 1, updatedProperty);
@@ -18726,11 +18733,17 @@ router.patch('/update/:id', (req, res, next) => {
 })
 
 //remove a property
-router.delete('/delete/:id', (req, res, next) => {
+router.delete('/delete/:id', async (req, res, next) => {
     const subjectPropertyIndex = newProperties.findIndex(p => p.id === parseInt(req.params.id));
-    if (subjectPropertyIndex === -1) return res.status(404).send('Property not found with the given id');
-    newProperties.splice(subjectPropertyIndex, 1);
-    res.send('Property deleted')
+    const propertyId = req.params.id;
+    try {
+        await Property.findByIdAndDelete(propertyId)
+        const user = await User.findById(req.userData.userId)
+        console.log(user);
+    } catch(err) {
+        const error = new HttpError('Could not delete property', 500);
+        return next(error);
+    }
 })
 
 
