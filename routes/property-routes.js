@@ -18582,10 +18582,13 @@ const dummyProperties = [
 const newProperties = []
 
 //get properties near searched location
-router.get('/nearby/:lat-:lng', (req, res, next) => {
+router.get('/nearby/:lat-:lng', async (req, res, next) => {
     const coordinates = { lat: parseFloat(req.params.lat), lng: parseFloat(req.params.lng) };
 
     //return array of properties that are within 3(ish) miles from submitted coordinates
+    const properties = await Property.find({ 'coordinates.lat': coordinates.lat + .05 });
+    console.log(properties);
+
     let nearbyProperties = dummyProperties.filter(p => {
         let calculateDiff = (coordA, coordB) => Math.abs(coordA - coordB);
         return (
@@ -18653,10 +18656,13 @@ router.post('/new', async (req, res, next) => {
     //create new property
     let newProperty = new Property({
         ...parsedFormData,
+        location: {
+            type: "Point",
+            coordinates: [coordinates.lng, coordinates.lat]
+        },
         coordinates: coordinates,
         photos: files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` })),
-        creator: req.userData.userId,
-        favorited_by: []
+        creator: req.userData.userId
     });
 
     //grab the associated User by UserId
@@ -18689,20 +18695,18 @@ router.post('/new', async (req, res, next) => {
 })
 
 //get listings by User ID (creator)
-router.get('/:userId', async (req, res, next) => {
+router.get('/:userId/listings', async (req, res, next) => {
     const userId = req.params.userId;
     let listings;
     try {
         let user = await User.findById(userId).populate('listings');
         listings = user.listings;
     } catch(err) {
-        const error = new HttpError('Could not retrieve properties', 500);
+        const error = new HttpError('Could not retrieve listings', 500);
         return next(error);
     }
     res.status(200).json(listings);
 })
-
-//get favorite properties by User ID
 
 //update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
 router.patch('/update/:id', (req, res, next) => {
@@ -18744,6 +18748,36 @@ router.delete('/delete/:id', async (req, res, next) => {
         const error = new HttpError('Could not delete property', 500);
         return next(error);
     }
+})
+
+//--------------------------------FAVORITES----------------------------//
+//save favorite properties by User ID & Property ID
+router.patch('/:userId/favorites/add', async (req, res, next) => {
+    let userId = req.params.userId;
+    let propertyId = req.body.propertyId;
+    let user;
+    try {
+        user = await User.findById(userId).populate('favorites');
+        await user.favorites.push({ _id: propertyId });
+        await user.save();
+    } catch (err) {
+        const error = new HttpError('Could not add to favorites', 500);
+        return next(err.message, 500);
+    }
+    res.status(201).json(user.favorites);
+})
+
+//get favorite properties by User ID
+router.get('/:userId/favorites', async (req, res, next) => {
+    let favs;
+    try {
+        let user = await User.findById(req.params.userId).populate('favorites');
+        favs = user.favorites;
+    } catch(err) {
+        const error = new HttpError('Could not retrieve favorites', 500);
+        return next(error);
+    }
+    res.status(200).json(favs);
 })
 
 

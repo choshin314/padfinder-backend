@@ -10,9 +10,16 @@ const propertySchema = new mongoose.Schema({
         state: { type: String, minlength: 2, maxlength: 2, required: true },
         zip: { type: String, minlength: 5, maxlength: 5, required: true }
     },
-    coordinates: {
-        lat: { type: Number, required: true },
-        lng: { type: Number, required: true }
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
     },
     details: {
         rent: [{ type: Number, required: true }, { type: Number, required: true }],
@@ -29,9 +36,10 @@ const propertySchema = new mongoose.Schema({
         parking: String
     },
     photos: [{ href: String }],
-    creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User' },
-    favorited_by: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User'}]
+    creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User' }
 })
+
+propertySchema.index({ location: "2dsphere" });
 
 const Property = mongoose.model('Property', propertySchema)
 
