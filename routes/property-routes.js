@@ -18584,20 +18584,30 @@ const newProperties = []
 //get properties near searched location
 router.get('/nearby/:lat-:lng', async (req, res, next) => {
     const coordinates = { lat: parseFloat(req.params.lat), lng: parseFloat(req.params.lng) };
+    let properties;
+    //return array of properties (nearest to furthest) that are within 3(ish) miles from submitted coordinates
+    try {
+        properties = await Property.find({
+            location: {
+                $near: {
+                    $maxDistance: 5000,
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [coordinates.lng, coordinates.lat]
+                    }
+                }
+            }
+        });
+        if (properties.length === 0) {
+            const error = new HttpError('No properties found within 3 miles.  Search another location.');
+            return next(error);
+        }
+    } catch(err) {
+        const error = new HttpError('Error retrieving properties, please try again', 500);
+        return next(error);
+    }
 
-    //return array of properties that are within 3(ish) miles from submitted coordinates
-    const properties = await Property.find({ 'coordinates.lat': coordinates.lat + .05 });
-    console.log(properties);
-
-    let nearbyProperties = dummyProperties.filter(p => {
-        let calculateDiff = (coordA, coordB) => Math.abs(coordA - coordB);
-        return (
-            calculateDiff(coordinates.lat, p.address.coordinates.lat) <= 0.05 && 
-            calculateDiff(coordinates.lng, p.address.coordinates.lng) <= 0.06
-        )
-    });
-
-    res.json(nearbyProperties);
+    res.json(properties);
 })
 
 
@@ -18758,7 +18768,7 @@ router.patch('/:userId/favorites/add', async (req, res, next) => {
     let user;
     try {
         user = await User.findById(userId).populate('favorites');
-        await user.favorites.push({ _id: propertyId });
+        await user.favorites.push({_id: propertyId});
         await user.save();
     } catch (err) {
         const error = new HttpError('Could not add to favorites', 500);
@@ -18773,6 +18783,7 @@ router.get('/:userId/favorites', async (req, res, next) => {
     try {
         let user = await User.findById(req.params.userId).populate('favorites');
         favs = user.favorites;
+        console.log(user)
     } catch(err) {
         const error = new HttpError('Could not retrieve favorites', 500);
         return next(error);
