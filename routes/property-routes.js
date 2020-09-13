@@ -18750,17 +18750,42 @@ router.patch('/update/:id', (req, res, next) => {
 //remove a property
 router.delete('/delete/:id', async (req, res, next) => {
     const propertyId = req.params.id;
-    let user;
+    let property;
     try {
-        const sess = await mongoose.startSession();
-        sess.startTransaction();
-        await Property.findByIdAndDelete(propertyId)
-        user = await User.findById(req.userData.userId)
-        await user.listings.pull({_id: propertyId});
+        property = await Property.findById(propertyId).populate('creator').populate('favorited_by');
     } catch(err) {
         const error = new HttpError('Could not delete property', 500);
         return next(error);
     }
+
+    if (!property) {
+        const error = new HttpError('Could not find a property with the given ID', 500);
+        return next(error);
+    }
+
+    if (req.userData.userId !== property.creator._id.toString()) {
+        const error = new HttpError('Not authorized to delete this listing', 500);
+        return next(error);
+    }
+
+    try {
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await property.remove({ session: sess });   //delete property
+        property.creator.listings.pull(property);   //remove property ref from creator's listings
+        await property.creator.save({ session: sess });
+        //remove property from the fave list of anyone who faved it
+        for(let user of property.favorited_by) {    
+            user.favorites.pull({ _id: property._id });
+            await user.save({ session: sess })
+        }
+        await sess.commitTransaction();
+    } catch(err) {
+        const error = new HttpError('Something went wrong. Could not delete listing.', 500);
+        return next(error);
+    }
+
+    res.status(200).json({ message: 'Deleted listing.' })
 })
 
 
