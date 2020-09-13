@@ -18762,9 +18762,8 @@ router.delete('/delete/:id', async (req, res, next) => {
 
 //--------------------------------FAVORITES----------------------------//
 //save favorite properties by User ID & Property ID
-router.patch('/:userId/favorites/add', async (req, res, next) => {
-    let userId = req.params.userId;
-    let propertyId = req.body.propertyId;
+router.patch('/:userId/favorites/add/:propertyId', async (req, res, next) => {
+    let { userId, propertyId } = req.params;
     let user;
     try {
         user = await User.findById(userId).populate('favorites');
