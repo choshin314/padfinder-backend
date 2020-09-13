@@ -36,7 +36,8 @@ const propertySchema = new mongoose.Schema({
         parking: String
     },
     photos: [{ href: String }],
-    creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User' }
+    creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User' },
+    favorited_by: [{ type: mongoose.Types.ObjectId, required: true, ref: 'User' }]
 })
 
 propertySchema.index({ location: "2dsphere" });

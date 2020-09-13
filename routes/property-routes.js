@@ -18672,7 +18672,8 @@ router.post('/new', async (req, res, next) => {
         },
         coordinates: coordinates,
         photos: files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` })),
-        creator: req.userData.userId
+        creator: req.userData.userId,
+        favorited_by: []
     });
 
     //grab the associated User by UserId
@@ -18748,17 +18749,26 @@ router.patch('/update/:id', (req, res, next) => {
 
 //remove a property
 router.delete('/delete/:id', async (req, res, next) => {
-    const subjectPropertyIndex = newProperties.findIndex(p => p.id === parseInt(req.params.id));
     const propertyId = req.params.id;
+    let user;
     try {
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
         await Property.findByIdAndDelete(propertyId)
-        const user = await User.findById(req.userData.userId)
-        console.log(user);
+        user = await User.findById(req.userData.userId)
+        await user.listings.pull({_id: propertyId});
     } catch(err) {
         const error = new HttpError('Could not delete property', 500);
         return next(error);
     }
 })
+
+const sess = await mongoose.startSession();
+sess.startTransaction();
+await newProperty.save({ session: sess });
+user.listings.push(newProperty); //mongoose will just push the id, not the whole property
+await user.save({session: sess});
+await sess.commitTransaction();
 
 //--------------------------------FAVORITES----------------------------//
 //save favorite properties by User ID & Property ID
@@ -18771,9 +18781,24 @@ router.patch('/:userId/favorites/add/:propertyId', async (req, res, next) => {
         await user.save();
     } catch (err) {
         const error = new HttpError('Could not add to favorites', 500);
-        return next(err.message, 500);
+        return next(error);
     }
     res.status(201).json(user.favorites);
+})
+
+//remove favorite properites by User ID & Property ID
+router.patch('/:userId/favorites/remove/:propertyId', async (req, res, next) => {
+    let { userId, propertyId } = req.params;
+    let user;
+    try {
+        user = await User.findById(userId);
+        await user.favorites.pull({_id: propertyId});
+        await user.save();
+    } catch(err) {
+        const error = new HttpError('Could not remove from favorites', 500);
+        return next(error);
+    }
+    res.status(202).json(user.favorites);
 })
 
 //get favorite properties by User ID
