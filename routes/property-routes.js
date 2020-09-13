@@ -18763,12 +18763,7 @@ router.delete('/delete/:id', async (req, res, next) => {
     }
 })
 
-const sess = await mongoose.startSession();
-sess.startTransaction();
-await newProperty.save({ session: sess });
-user.listings.push(newProperty); //mongoose will just push the id, not the whole property
-await user.save({session: sess});
-await sess.commitTransaction();
+
 
 //--------------------------------FAVORITES----------------------------//
 //save favorite properties by User ID & Property ID
@@ -18776,14 +18771,22 @@ router.patch('/:userId/favorites/add/:propertyId', async (req, res, next) => {
     let { userId, propertyId } = req.params;
     let user;
     try {
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        //update User's favorites array
         user = await User.findById(userId).populate('favorites');
-        await user.favorites.push({_id: propertyId});
-        await user.save();
+        user.favorites.push({_id: propertyId});
+        await user.save({ session: sess });
+        //update Property's favorited_by array
+        const property = await Property.findById(propertyId);
+        property.favorited_by.push({_id: userId});
+        await property.save({ session: sess });
+        await sess.commitTransaction();
     } catch (err) {
         const error = new HttpError('Could not add to favorites', 500);
         return next(error);
     }
-    res.status(201).json(user.favorites);
+    res.status(201).json(user.favorites); //sends full objects bc populated
 })
 
 //remove favorite properites by User ID & Property ID
@@ -18791,9 +18794,15 @@ router.patch('/:userId/favorites/remove/:propertyId', async (req, res, next) => 
     let { userId, propertyId } = req.params;
     let user;
     try {
-        user = await User.findById(userId);
-        await user.favorites.pull({_id: propertyId});
-        await user.save();
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        user = await User.findById(userId).populate('favorites');
+        user.favorites.pull({_id: propertyId});
+        await user.save({ session: sess });
+        const property = await Property.findById(propertyId);
+        property.favorited_by.pull({ _id: userId });
+        await property.save({ session: sess });
+        await sess.commitTransaction();
     } catch(err) {
         const error = new HttpError('Could not remove from favorites', 500);
         return next(error);
