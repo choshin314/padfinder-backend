@@ -18582,12 +18582,14 @@ const dummyProperties = [
 const newProperties = []
 
 //get properties near searched location
-router.get('/nearby/:lat-:lng', async (req, res, next) => {
-    const coordinates = { lat: parseFloat(req.params.lat), lng: parseFloat(req.params.lng) };
-    let properties;
-    //return array of properties (nearest to furthest) that are within 3(ish) miles from submitted coordinates
+
+router.get('/nearby/:queryString', async (req, res, next) => {
+    const queryString = req.params.queryString;
+    const { coordinates, formatted_address } = await getCoordinates(queryString, next); 
+    let nearbyProperties;
+    //return arr of properties (near to far) that are within 5k from searchCoords
     try {
-        properties = await Property.find({
+        nearbyProperties = await Property.find({
             location: {
                 $near: {
                     $maxDistance: 5000,
@@ -18598,7 +18600,7 @@ router.get('/nearby/:lat-:lng', async (req, res, next) => {
                 }
             }
         });
-        if (properties.length === 0) {
+        if (nearbyProperties.length === 0) {
             const error = new HttpError('No properties found within 3 miles.  Search another location.');
             return next(error);
         }
@@ -18606,10 +18608,8 @@ router.get('/nearby/:lat-:lng', async (req, res, next) => {
         const error = new HttpError('Error retrieving properties, please try again', 500);
         return next(error);
     }
-
-    res.json(properties);
+    res.json({ coordinates, formatted_address, nearbyProperties });
 })
-
 
 //ROUTE PROTECTION (Auth required for routes below)
 router.use(verifyAuth);
@@ -18661,7 +18661,7 @@ router.post('/new', async (req, res, next) => {
     const { street, city, state, zip } = parsedFormData.address;
     let queryString = `${street}+${city}+${state}+${zip}`;
     queryString = queryString.replace(/(\s)/g, '+');
-    const coordinates = await getCoordinates(queryString, next);
+    const { coordinates } = await getCoordinates(queryString, next);
 
     //create new property
     let newProperty = new Property({
