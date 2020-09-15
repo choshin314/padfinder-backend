@@ -18583,11 +18583,11 @@ const newProperties = []
 
 //get properties near searched location
 
-router.get('/nearby/:queryString', async (req, res, next) => {
+router.get('/nearby/string/:queryString', async (req, res, next) => {
     const queryString = req.params.queryString;
     const { coordinates, formatted_address } = await getCoordinates(queryString, next); 
     let nearbyProperties;
-    //return arr of properties (near to far) that are within 5k from searchCoords
+    //return array of properties (nearest to furthest) that are within 3(ish) miles from submitted coordinates
     try {
         nearbyProperties = await Property.find({
             location: {
@@ -18601,7 +18601,7 @@ router.get('/nearby/:queryString', async (req, res, next) => {
             }
         });
         if (nearbyProperties.length === 0) {
-            const error = new HttpError('No properties found within 3 miles.  Search another location.');
+            const error = new HttpError('No properties found within 3 miles.  Search another location.', 404);
             return next(error);
         }
     } catch(err) {
@@ -18610,6 +18610,35 @@ router.get('/nearby/:queryString', async (req, res, next) => {
     }
     res.json({ coordinates, formatted_address, nearbyProperties });
 })
+
+
+router.get('/nearby/coordinates/:lat-:lng', async (req, res, next) => {
+    const coordinates = { lat: parseFloat(req.params.lat), lng: parseFloat(req.params.lng) };
+    let nearbyProperties;
+    //return array of properties (nearest to furthest) that are within 3(ish) miles from submitted coordinates
+    try {
+        nearbyProperties = await Property.find({
+            location: {
+                $near: {
+                    $maxDistance: 5000,
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [coordinates.lng, coordinates.lat]
+                    }
+                }
+            }
+        });
+        if (nearbyProperties.length === 0) {
+            const error = new HttpError('No properties found within 3 miles.  Search another location.', 404);
+            return next(error);
+        }
+    } catch(err) {
+        const error = new HttpError('Error retrieving properties, please try again', 500);
+        return next(error);
+    }
+    res.json(nearbyProperties);
+})
+
 
 //ROUTE PROTECTION (Auth required for routes below)
 router.use(verifyAuth);
