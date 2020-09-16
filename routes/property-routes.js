@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const verifyAuth = require('../middleware/authorization');
 const HttpError = require('../models/http-error');
-const uploadFile = require('../util/google-storage');
+const { uploadFile, deleteFiles } = require('../util/google-storage');
 const getCoordinates = require('../util/google-coordinates');
 const { Property, validateProperty } = require('../models/property-model');
 const { User } = require('../models/user-model');
@@ -18812,6 +18812,13 @@ router.delete('/delete/:id', async (req, res, next) => {
     } catch(err) {
         const error = new HttpError('Something went wrong. Could not delete listing.', 500);
         return next(error);
+    }
+
+    const photoFileNames = property.photos.map(photo => photo.href.split('padfinder_bucket/')[1]);
+    try {
+        await deleteFiles(photoFileNames);
+    } catch(err) {
+        console.log(err);
     }
 
     res.status(200).json({ message: 'Deleted listing.' })
