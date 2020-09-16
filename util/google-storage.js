@@ -10,4 +10,11 @@ async function uploadFile(file) {
     })
 }
 
-module.exports = uploadFile
+async function deleteFiles(filenames) {
+    for(let filename of filenames) {
+        await storage.bucket(bucketName).file(filename).delete();
+        console.log(`gs://${bucketName}/${filename} deleted.`);
+    }
+}
+
+module.exports = { uploadFile, deleteFiles }
