@@ -21,18 +21,14 @@ router.get('/nearby/string/:queryString', async (req, res, next) => {
         nearbyProperties = await Property.find({
             location: {
                 $near: {
-                    $maxDistance: 5000,
+                    // $maxDistance: 15000,
                     $geometry: {
                         type: "Point",
                         coordinates: [coordinates.lng, coordinates.lat]
                     }
                 }
             }
-        });
-        if (nearbyProperties.length === 0) {
-            const error = new HttpError('No properties found within 3 miles.  Search another location.', 404);
-            return next(error);
-        }
+        }).limit(20);
     } catch(err) {
         const error = new HttpError('Error retrieving properties, please try again', 500);
         return next(error);
@@ -49,18 +45,14 @@ router.get('/nearby/coordinates/:lat-:lng', async (req, res, next) => {
         nearbyProperties = await Property.find({
             location: {
                 $near: {
-                    $maxDistance: 5000,
+                    // $maxDistance: 15000,
                     $geometry: {
                         type: "Point",
                         coordinates: [coordinates.lng, coordinates.lat]
                     }
                 }
             }
-        });
-        if (nearbyProperties.length === 0) {
-            const error = new HttpError('No properties found within 3 miles.  Search another location.', 404);
-            return next(error);
-        }
+        }).limit(20);
     } catch(err) {
         const error = new HttpError('Error retrieving properties, please try again', 500);
         return next(error);
@@ -88,13 +80,14 @@ router.get('/:userId/listings', async (req, res, next) => {
 
 //create new property
 router.post('/new', async (req, res, next) => {
-    const {type, available_date, address, details} = req.body;
     let parsedFormData = {
-        type: JSON.parse(type),
-        available_date: JSON.parse(available_date),
-        address: JSON.parse(address),
-        details: JSON.parse(details)
+        type: JSON.parse(req.body.type),
+        available_date: JSON.parse(req.body.available_date),
+        address: JSON.parse(req.body.address),
+        details: JSON.parse(req.body.details)
     }
+    const {type, available_date, address, details} = req.body;
+
     const validationResult = validateProperty(parsedFormData)
     if (validationResult.error) {
         const error = new HttpError(validationResult.error.details[0].message, 422)
@@ -103,8 +96,8 @@ router.post('/new', async (req, res, next) => {
     //check if property already exists
     try {
         let existingProperty = await Property.findOne({ 
-            'address.street': parsedFormData.address.street,
-            'address.zip': parsedFormData.address.zip
+            'address.street': address.street,
+            'address.zip': address.zip
         })
         if (existingProperty) throw new Error();
     } catch (err) {
@@ -130,7 +123,7 @@ router.post('/new', async (req, res, next) => {
     }
 
     //get coordinates
-    const { street, city, state, zip } = parsedFormData.address;
+    const { street, city, state, zip } = address;
     let queryString = `${street}+${city}+${state}+${zip}`;
     queryString = queryString.replace(/(\s)/g, '+');
     const { coordinates } = await getCoordinates(queryString, next);
