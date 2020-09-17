@@ -18643,6 +18643,20 @@ router.get('/nearby/coordinates/:lat-:lng', async (req, res, next) => {
 //ROUTE PROTECTION (Auth required for routes below)
 router.use(verifyAuth);
 
+//get listings by User ID (creator)
+router.get('/:userId/listings', async (req, res, next) => {
+    const userId = req.params.userId;
+    let listings;
+    try {
+        let user = await User.findById(userId).populate('listings');
+        listings = user.listings;
+    } catch(err) {
+        const error = new HttpError('Could not retrieve listings', 500);
+        return next(error);
+    }
+    res.status(200).json(listings);
+})
+
 //create new property
 router.post('/new', async (req, res, next) => {
     const {type, available_date, address, details} = req.body;
@@ -18734,46 +18748,101 @@ router.post('/new', async (req, res, next) => {
     res.status(201).json(newProperty);
 })
 
-//get listings by User ID (creator)
-router.get('/:userId/listings', async (req, res, next) => {
-    const userId = req.params.userId;
-    let listings;
+//update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
+router.patch('/update/:propertyId', async (req, res, next) => {
+    let property;
+    let parsedFormData = {
+        type: JSON.parse(req.body.type),
+        available_date: JSON.parse(req.body.available_date),
+        address: JSON.parse(req.body.address),
+        details: JSON.parse(req.body.details)
+    }
+    const toBeDeleted = JSON.parse(req.body.toBeDeleted);
+    const {type, available_date, address, details } = parsedFormData;
+    console.log(parsedFormData)
+    console.log('toBeDeleted: ', toBeDeleted)
+    // console.log('photos to add: ', req.files.photos)
+    // console.log(typeof req.files.photos)
+
+    const validationResult = validateProperty(parsedFormData)
+    if (validationResult.error) {
+        const error = new HttpError(validationResult.error.details[0].message, 422)
+        return next(error); //if data fails Joi validation, kick this to the error handler middleware
+    }
+
     try {
-        let user = await User.findById(userId).populate('listings');
-        listings = user.listings;
+        property = await Property.findById(req.params.propertyId).populate('creator')
     } catch(err) {
-        const error = new HttpError('Could not retrieve listings', 500);
+        const error = new HttpError('Could not update property', 500);
         return next(error);
     }
-    res.status(200).json(listings);
-})
 
-//update a property.  Cannot alter address or type.  Can only change details, available date, and photos.
-router.patch('/update/:id', (req, res, next) => {
-    const subjectPropertyIndex = newProperties.findIndex(p => p.id === parseInt(req.params.id));
-    const subjectProperty = newProperties.find(p => p.id === parseInt(req.params.id));
-    if (subjectPropertyIndex === -1) return res.status(404).send('Property not found');
+    if (!property) {
+        const error = new HttpError('Could not find a property with the given ID', 404);
+        return next(error);
+    }
+    
+    if (req.userData.userId !== property.creator._id.toString()) {
+        const error = new HttpError('Not authorized to update this listing', 403);
+        return next(error);
+    }
 
-    const { rent, beds, baths, size, dogs, cats, neighborhood, laundry, utilities, parking } = req.body;
-    let updatedProperty = {
-        ...subjectProperty, 
-        details: {
-            rent: parseInt(rent),
-            beds: parseInt(beds),
-            baths: parseInt(baths),
-            size: parseInt(size),
-            pet_policy: {
-                dogs,
-                cats
-            },
-            neighborhood,
-            laundry,
-            utilities,
-            parking
+    //----------------------PHOTO UPLOAD / DELETE-------------------//
+    let files = req.files ? req.files.photos : null; 
+    let photosToAdd;
+    if (files && !Array.isArray(files)) {
+        files.mv(`./uploads/images/${files.name}`);
+        try {
+            await uploadFile(`./uploads/images/${files.name}`, next)
+        } catch(err) {
+            const error = new HttpError('Could not upload image. Please try again later.', 500);
+            return next(error);
         }
-    };
-    newProperties.splice(subjectPropertyIndex, 1, updatedProperty);
-    res.json(newProperties);
+        photosToAdd = [{ href: `https://storage.googleapis.com/padfinder_bucket/${files.name}` }]
+        fs.unlink(`./uploads/images/${files.name}`, err => {if(err) console.log(err)})
+    }
+
+    if (files && Array.isArray(files)) {
+        for (const file of files) { file.mv(`./uploads/images/${file.name}`) }
+        try {
+            for (const file of files) { 
+                await uploadFile(`./uploads/images/${file.name}`, next) 
+            };
+        } catch(err) {
+            const error = new HttpError('Could not upload images.  Please try again later.', 500);
+            return next(error);
+        }
+        photosToAdd = files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` }));
+        //delete local photo files after upload to google 
+        files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
+    }
+
+    if(toBeDeleted && toBeDeleted.length > 0) {
+        const photoFileNames = toBeDeleted.map(fullUrl => fullUrl.split('padfinder_bucket/')[1]);
+        try {
+            await deleteFiles(photoFileNames, next);
+        } catch(err) {
+            console.log(err);
+        }
+    }
+    //------------------save changes to Property document---------------//
+    try {
+        property.details = {
+            ...property.details,
+            ...details
+        };
+        property.available_date = available_date;
+        if(photosToAdd) property.photos = [...property.photos, ...photosToAdd];
+        if (toBeDeleted) {
+            property.photos = property.photos.filter(p => !toBeDeleted.includes(p.href))
+        }
+        await property.save();
+    } catch(err) {
+        const error = new HttpError(err.message, 500);
+        return next(error);
+    }
+
+    res.status(201).json(property)
 })
 
 //remove a property
@@ -18788,12 +18857,12 @@ router.delete('/delete/:id', async (req, res, next) => {
     }
 
     if (!property) {
-        const error = new HttpError('Could not find a property with the given ID', 500);
+        const error = new HttpError('Could not find a property with the given ID', 404);
         return next(error);
     }
 
     if (req.userData.userId !== property.creator._id.toString()) {
-        const error = new HttpError('Not authorized to delete this listing', 500);
+        const error = new HttpError('Not authorized to delete this listing', 403);
         return next(error);
     }
 
@@ -18816,7 +18885,7 @@ router.delete('/delete/:id', async (req, res, next) => {
 
     const photoFileNames = property.photos.map(photo => photo.href.split('padfinder_bucket/')[1]);
     try {
-        await deleteFiles(photoFileNames);
+        await deleteFiles(photoFileNames, next);
     } catch(err) {
         console.log(err);
     }
