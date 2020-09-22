@@ -22,4 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-padfinder-b291a4ddddbc.json
+googleStorageCredentials.json
+gmailCredentials.json

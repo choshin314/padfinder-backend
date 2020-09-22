@@ -1,9 +1,9 @@
 const {Storage} = require('@google-cloud/storage');
 const HttpError = require('../models/http-error')
 
-const bucketName = 'padfinder_bucket';
+const bucketName = 'padfinder2_bucket';
 
-const storage = new Storage({keyFilename: 'padfinder-b291a4ddddbc.json', projectId: 'padfinder'});
+const storage = new Storage({keyFilename: 'googleStorageCredentials.json', projectId: 'padfinder-2'});
 
 async function uploadFile(file, next) {
     try {
@@ -30,4 +30,4 @@ async function deleteFiles(filenames, next) {
     }
 }
 
-module.exports = { uploadFile, deleteFiles }
+module.exports = { uploadFile, deleteFiles, bucketName }
