@@ -139,7 +139,7 @@ router.post('/new', async (req, res, next) => {
         address: JSON.parse(req.body.address),
         details: JSON.parse(req.body.details)
     }
-    const {type, available_date, address, details} = req.body;
+    const { street, city, state, zip } = parsedFormData.address;
 
     const validationResult = validateProperty(parsedFormData)
     if (validationResult.error) {
@@ -149,23 +149,20 @@ router.post('/new', async (req, res, next) => {
     //check if property already exists
     try {
         let existingProperty = await Property.findOne({ 
-            'address.street': address.street,
-            'address.zip': address.zip
+            'address.street': street,
+            'address.zip': zip
         })
         if (existingProperty) throw new Error();
     } catch (err) {
-        const error = new HttpError('Property already listed', 400);
+        const error = new HttpError('This listing already exists', 400);
         return next(error)
     }
     
-
     //----------------------PHOTO UPLOAD-------------------//
     let files = req.files.photos; 
-    //move each photo to uploads/images
     for (const file of files) {
         file.mv(`./uploads/images/${file.name}`)
     }
-    //upload photos to google cloud
     try {
         for (const file of files) {
             await uploadFile(`./uploads/images/${file.name}`)
@@ -174,21 +171,21 @@ router.post('/new', async (req, res, next) => {
         const error = new HttpError('Could not upload images.  Please try again later.', 500);
         return next(error);
     }
+    files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
 
-    //get coordinates
-    const { street, city, state, zip } = address;
+    //-----------------------GET COORDINATES----------------//
     let queryString = `${street}+${city}+${state}+${zip}`;
-    queryString = queryString.replace(/(\s)/g, '+');
+    queryString = queryString.replace(/\s/g, '+');
+    console.log('1: ', queryString);
     const { coordinates } = await getCoordinates(queryString, next);
 
-    //create new property
+    //----------------------CREATE NEW PROPERTY---------------//
     let newProperty = new Property({
         ...parsedFormData,
         location: {
             type: "Point",
             coordinates: [coordinates.lng, coordinates.lat]
         },
-        coordinates: coordinates,
         photos: files.map(file => ({ href: `https://storage.googleapis.com/${bucketName}/${file.name}` })),
         creator: req.userData.userId,
         favorited_by: []
@@ -216,10 +213,6 @@ router.post('/new', async (req, res, next) => {
         return next(error);
     }
 
-    //delete local photo files after upload to google 
-    files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
-    
-    //send new property back to frontend
     res.status(201).json(newProperty);
 })
 
