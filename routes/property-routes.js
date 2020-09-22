@@ -2,21 +2,77 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 const fs = require('fs');
+const axios = require('axios');
+const nodemailer = require('nodemailer');
 
 const verifyAuth = require('../middleware/authorization');
 const HttpError = require('../models/http-error');
-const { uploadFile, deleteFiles } = require('../util/google-storage');
+const { uploadFile, deleteFiles, bucketName } = require('../util/google-storage');
 const getCoordinates = require('../util/google-coordinates');
 const { Property, validateProperty } = require('../models/property-model');
 const { User } = require('../models/user-model');
+
 // const properties = require('../formattedProperties.json')
 
-//get properties near searched location
+//-------------------SEND EMAIL TO PROPERTY CREATOR--------------------------//
+router.post('/inquiry', async (req, res, next) => {
+    const {name, email, moveInDate, phone, message, propertyId} = req.body;
+    let property;
+
+    try {
+        property = await Property.findById(propertyId).populate('creator', 'email');
+    } catch(err) {
+        const error = new HttpError('Could not retrieve listing information', 500);
+        return next(error);
+    }
+
+    if (!property) {
+        const error = new HttpError('Could not find a listing with the given ID', 404);
+        return next(error);
+    }
+
+    const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD
+        },
+        disableUrlAccess: true
+    });
+
+    try {
+        let info = await transporter.sendMail({
+            from: '"Padfinder Inquiries" <shinchodev@gmail.com>',
+            to: property.creator.email,
+            subject: `New Inquiry for ${property.address.street}`,
+            text: message,
+            html: `<h3>Sender Details:</>
+                <ul>
+                    <li>Sender Name: ${name}</li>
+                    <li>Sender Email: ${email}</li>
+                    <li>Sender Phone: ${phone}</li>
+                    <li>Move-In Date: ${moveInDate}</li>
+                </ul>
+                <h3>Message:</h3>
+                <p>${message}</p>`
+        });
+        console.log('message sent ', info.messageId);
+    } catch (err) {
+        console.log(err);
+        const error = new HttpError('Could not send email at this time', 500);
+        return next(error);
+    }
+    res.status(200).json({ message: 'Message sent!'})
+})
+
+//-------------------GET PROPERTIES NEAR GEOLOCATION OR SEARCHED LOCATION-----------//
 router.get('/nearby/string/:queryString', async (req, res, next) => {
     const queryString = req.params.queryString;
     const { coordinates, formatted_address } = await getCoordinates(queryString, next); 
     let nearbyProperties;
-    //return array of properties (nearest to furthest) that are within 3(ish) miles from submitted coordinates
+    //return array of properties (nearest to furthest)
     try {
         nearbyProperties = await Property.find({
             location: {
@@ -28,7 +84,7 @@ router.get('/nearby/string/:queryString', async (req, res, next) => {
                     }
                 }
             }
-        }).limit(20);
+        }).limit(100);
     } catch(err) {
         const error = new HttpError('Error retrieving properties, please try again', 500);
         return next(error);
@@ -36,11 +92,9 @@ router.get('/nearby/string/:queryString', async (req, res, next) => {
     res.json({ coordinates, formatted_address, nearbyProperties });
 })
 
-
 router.get('/nearby/coordinates/:lat-:lng', async (req, res, next) => {
     const coordinates = { lat: parseFloat(req.params.lat), lng: parseFloat(req.params.lng) };
     let nearbyProperties;
-    //return array of properties (nearest to furthest) that are within 3(ish) miles from submitted coordinates
     try {
         nearbyProperties = await Property.find({
             location: {
@@ -52,14 +106,13 @@ router.get('/nearby/coordinates/:lat-:lng', async (req, res, next) => {
                     }
                 }
             }
-        }).limit(20);
+        }).limit(100);
     } catch(err) {
         const error = new HttpError('Error retrieving properties, please try again', 500);
         return next(error);
     }
     res.json(nearbyProperties);
 })
-
 
 //--------------------PROTECTED ROUTES (Auth required for routes below)-----------//
 router.use(verifyAuth);
@@ -136,7 +189,7 @@ router.post('/new', async (req, res, next) => {
             coordinates: [coordinates.lng, coordinates.lat]
         },
         coordinates: coordinates,
-        photos: files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` })),
+        photos: files.map(file => ({ href: `https://storage.googleapis.com/${bucketName}/${file.name}` })),
         creator: req.userData.userId,
         favorited_by: []
     });
@@ -220,7 +273,7 @@ router.patch('/update/:propertyId', async (req, res, next) => {
             const error = new HttpError('Could not upload image. Please try again later.', 500);
             return next(error);
         }
-        photosToAdd = [{ href: `https://storage.googleapis.com/padfinder_bucket/${files.name}` }]
+        photosToAdd = [{ href: `https://storage.googleapis.com/${bucketName}/${files.name}` }]
         fs.unlink(`./uploads/images/${files.name}`, err => {if(err) console.log(err)})
     }
 
@@ -234,13 +287,13 @@ router.patch('/update/:propertyId', async (req, res, next) => {
             const error = new HttpError('Could not upload images.  Please try again later.', 500);
             return next(error);
         }
-        photosToAdd = files.map(file => ({ href: `https://storage.googleapis.com/padfinder_bucket/${file.name}` }));
+        photosToAdd = files.map(file => ({ href: `https://storage.googleapis.com/${bucketName}/${file.name}` }));
         //delete local photo files after upload to google 
         files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
     }
 
     if(toBeDeleted && toBeDeleted.length > 0) {
-        const photoFileNames = toBeDeleted.map(fullUrl => fullUrl.split('padfinder_bucket/')[1]);
+        const photoFileNames = toBeDeleted.map(fullUrl => fullUrl.split(`${bucketName}/`)[1]);
         try {
             await deleteFiles(photoFileNames, next);
         } catch(err) {
@@ -305,7 +358,7 @@ router.delete('/delete/:id', async (req, res, next) => {
         return next(error);
     }
 
-    const photoFileNames = property.photos.map(photo => photo.href.split('padfinder_bucket/')[1]);
+    const photoFileNames = property.photos.map(photo => photo.href.split(`${bucketName}/`)[1]);
     try {
         await deleteFiles(photoFileNames, next);
     } catch(err) {
@@ -396,6 +449,8 @@ router.get('/:userId/favorites', async (req, res, next) => {
 //     });
 //     res.json(formattedProps);
 // })
+
+
 
 module.exports = router;
 
