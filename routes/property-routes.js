@@ -114,6 +114,29 @@ router.get('/nearby/coordinates/:lat-:lng', async (req, res, next) => {
     res.json(nearbyProperties);
 })
 
+router.get('/nearby/panel/:lat-:lng', async (req, res, next) => {
+    const coordinates = { lat: parseFloat(req.params.lat), lng: parseFloat(req.params.lng) };
+    let nearbyProperties;
+    try {
+        nearbyProperties = await Property.find({
+            location: {
+                $near: {
+                    // $maxDistance: 15000,
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [coordinates.lng, coordinates.lat]
+                    }
+                }
+            }
+        }).limit(4);
+    } catch(err) {
+        const error = new HttpError('Error retrieving properties, please try again', 500);
+        return next(error);
+    }
+    res.json(nearbyProperties);
+})
+
+
 //--------------------PROTECTED ROUTES (Auth required for routes below)-----------//
 router.use(verifyAuth);
 
