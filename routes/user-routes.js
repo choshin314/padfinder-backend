@@ -76,12 +76,6 @@ router.post('/register', async (req, res, next) => {
         userId: newUser.id,
         email: newUser.email,
         isLister: newUser.isLister,
-        first_name: newUser.first_name,
-        last_name: newUser.last_name,
-        company: newUser.company,
-        phone: newUser.phone,
-        listings: newUser.listings,
-        favorites: newUser.favorites,
         token
     });
 })
@@ -126,18 +120,8 @@ router.post('/login', async (req, res, next) => {
         userId: matchedUser.id,
         email: matchedUser.email,
         isLister: matchedUser.isLister,
-        first_name: matchedUser.first_name,
-        last_name: matchedUser.last_name,
-        company: matchedUser.company,
-        phone: matchedUser.phone,
-        listings: matchedUser.listings,
-        favorites: matchedUser.favorites,
         token
     });
-})
-
-router.get('/', (req, res, next) => {
-    res.json(users)
 })
 
 module.exports = router;

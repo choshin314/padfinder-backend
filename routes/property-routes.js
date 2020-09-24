@@ -68,72 +68,35 @@ router.post('/inquiry', async (req, res, next) => {
 })
 
 //-------------------GET PROPERTIES NEAR GEOLOCATION OR SEARCHED LOCATION-----------//
-router.get('/nearby/string/:queryString', async (req, res, next) => {
-    const queryString = req.params.queryString;
-    const { coordinates, formatted_address } = await getCoordinates(queryString, next); 
-    let nearbyProperties;
-    //return array of properties (nearest to furthest)
-    try {
-        nearbyProperties = await Property.find({
-            location: {
-                $near: {
-                    // $maxDistance: 15000,
-                    $geometry: {
-                        type: "Point",
-                        coordinates: [coordinates.lng, coordinates.lat]
-                    }
-                }
-            }
-        }).limit(100);
-    } catch(err) {
-        const error = new HttpError('Error retrieving properties, please try again', 500);
-        return next(error);
-    }
-    res.json({ coordinates, formatted_address, nearbyProperties });
-})
 
-router.get('/nearby/coordinates/:lat-:lng', async (req, res, next) => {
-    const coordinates = { lat: parseFloat(req.params.lat), lng: parseFloat(req.params.lng) };
+router.get('/nearby', async (req, res, next) => {
+    let { queryString, lat, lng, limit } = req.query;
+    limit = limit ? parseInt(limit) : 100;
+    const coordinates = { lat, lng };
+    let formatted_address;
     let nearbyProperties;
+    if (queryString) {
+        const results = await getCoordinates(queryString, next);
+        coordinates.lat = results.coordinates.lat;
+        coordinates.lng = results.coordinates.lng;
+        formatted_address = results.formatted_address;
+    }
     try {
         nearbyProperties = await Property.find({
             location: {
                 $near: {
-                    // $maxDistance: 15000,
                     $geometry: {
                         type: "Point",
-                        coordinates: [coordinates.lng, coordinates.lat]
+                        coordinates: [parseFloat(coordinates.lng), parseFloat(coordinates.lat)]
                     }
                 }
             }
-        }).limit(100);
+        }).limit(limit)
     } catch(err) {
         const error = new HttpError('Error retrieving properties, please try again', 500);
         return next(error);
     }
-    res.json(nearbyProperties);
-})
-
-router.get('/nearby/panel/:lat-:lng', async (req, res, next) => {
-    const coordinates = { lat: parseFloat(req.params.lat), lng: parseFloat(req.params.lng) };
-    let nearbyProperties;
-    try {
-        nearbyProperties = await Property.find({
-            location: {
-                $near: {
-                    // $maxDistance: 15000,
-                    $geometry: {
-                        type: "Point",
-                        coordinates: [coordinates.lng, coordinates.lat]
-                    }
-                }
-            }
-        }).limit(4);
-    } catch(err) {
-        const error = new HttpError('Error retrieving properties, please try again', 500);
-        return next(error);
-    }
-    res.json(nearbyProperties);
+    res.json({ nearbyProperties, formatted_address, coordinates });
 })
 
 
@@ -199,7 +162,6 @@ router.post('/new', async (req, res, next) => {
     //-----------------------GET COORDINATES----------------//
     let queryString = `${street}+${city}+${state}+${zip}`;
     queryString = queryString.replace(/\s/g, '+');
-    console.log('1: ', queryString);
     const { coordinates } = await getCoordinates(queryString, next);
 
     //----------------------CREATE NEW PROPERTY---------------//

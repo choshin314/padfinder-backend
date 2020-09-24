@@ -26,10 +26,6 @@ app.use(express.urlencoded({ extended: false }));
 
 //--------------ROUTES-----------------------
 
-app.get('/', (req, res, next) => {
-    res.send('Hello World')
-})
-
 app.use('/api/properties', propertyRoutes);
 app.use('/api/users', userRoutes)
 
