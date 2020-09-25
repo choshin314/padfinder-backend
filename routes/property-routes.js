@@ -90,8 +90,9 @@ router.get('/nearby', async (req, res, next) => {
                     }
                 }
             }
-        }).limit(limit)
+        }).limit(parseInt(limit))
     } catch(err) {
+        console.log(err.message);
         const error = new HttpError('Error retrieving properties, please try again', 500);
         return next(error);
     }
@@ -332,32 +333,31 @@ router.delete('/delete/:id', async (req, res, next) => {
 })
 
 //-------------------GET LISTINGS / FAVES-------------//
-router.get('/listings/:userId', async (req, res, next) => {
-    const { userId } = req.params;
-    let listings;
+router.get('/list/:listName/:userId', async (req, res, next) => {
+    const { listName, userId } = req.params;
+    let { pg, limit } = req.query;
+    pg = parseInt(pg);
+    limit = parseInt(limit);
+    const filter = listName === 'listings' ? { creator: userId } : { favorited_by: [userId] };
+    let listData = {};
     try {
-        listings = await Property.find({ creator: userId })
+        listData.properties = await Property.find(filter).skip((pg - 1) * limit).limit(limit);
+        listData.totalCount = await Property.countDocuments(filter);
+        listData.totalPages = Math.ceil(listData.totalCount/limit);
+        listData.currentPage = pg;
+        listData.prevPage = pg > 1 ? pg - 1 : null;
+        listData.nextPage = pg < listData.totalPages ? pg + 1 : null;
     } catch(err) {
         const error = new HttpError('Could not retrieve property list', 500);
         return next(error);
     }
-    res.status(200).json(listings);
+    res.status(200).json(listData);
 })
 
-router.get('/favorites/:userId', async (req, res, next) => {
-    const { userId } = req.params;
-    let favorites;
-    try {
-        favorites = await Property.find({ favorited_by: [ userId ]});
-    } catch(err) {
-        const error = new HttpError('Could not retrieve property list', 500);
-        return next(error);
-    }
-    res.status(200).json(favorites);
-})
+
 //--------------------------------FAVORITES----------------------------//
 //save favorite properties by User ID & Property ID
-router.patch('/:userId/favorites/add/:propertyId', async (req, res, next) => {
+router.patch('/favorites/:userId/add/:propertyId', async (req, res, next) => {
     let { userId, propertyId } = req.params;
     let user;
     try {
@@ -380,7 +380,7 @@ router.patch('/:userId/favorites/add/:propertyId', async (req, res, next) => {
 })
 
 //remove favorite properites by User ID & Property ID
-router.patch('/:userId/favorites/remove/:propertyId', async (req, res, next) => {
+router.patch('/favorites/:userId/remove/:propertyId', async (req, res, next) => {
     let { userId, propertyId } = req.params;
     let user;
     try {
