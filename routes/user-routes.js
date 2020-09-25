@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const HttpError = require('../models/http-error');
+const verifyAuth = require('../middleware/authorization');
 const { User, userSchema, validateUser } = require('../models/user-model')
 
 //register new user
@@ -13,7 +14,6 @@ router.post('/register', async (req, res, next) => {
         const error = new HttpError(validationResult.error.details[0].message, 422)
         return next(error); //if data fails Joi validation, kick this to the error handler middleware
     }
-
     let {email, password, isLister, first_name, last_name, company, phone} = req.body;
     
     //check if user account already exists
@@ -29,7 +29,6 @@ router.post('/register', async (req, res, next) => {
         const error = new HttpError('User already exists', 422);
         return next(error);
     }
-
     //hash the password
     let hashedPassword;
     try {
@@ -38,8 +37,6 @@ router.post('/register', async (req, res, next) => {
         const error = new HttpError('Could not create user, please try again', 500)
         return next(error);
     }
-
-    //create new user in the database
     const newUser = new User({
         email,
         password: hashedPassword,
@@ -71,7 +68,6 @@ router.post('/register', async (req, res, next) => {
         return next(error);
     }
 
-    //send newUser properties + token back to client
     res.status(201).json({
         userId: newUser.id,
         email: newUser.email,
@@ -123,5 +119,22 @@ router.post('/login', async (req, res, next) => {
         token
     });
 })
+
+router.use(verifyAuth);
+
+router.get('/:userId/properties/:listName', async (req, res, next) => {
+    const { userId, listName } = req.params;
+    let propertyList;
+    try {
+        let user = await User.findById(userId).populate(listName);
+        propertyList = user[listName]
+    } catch(err) {
+        const error = new HttpError('Could not retrieve property list', 500);
+        return next(error);
+    }
+    res.status(200).json(propertyList);
+})
+
+
 
 module.exports = router;

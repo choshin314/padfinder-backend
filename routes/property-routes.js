@@ -70,8 +70,7 @@ router.post('/inquiry', async (req, res, next) => {
 //-------------------GET PROPERTIES NEAR GEOLOCATION OR SEARCHED LOCATION-----------//
 
 router.get('/nearby', async (req, res, next) => {
-    let { queryString, lat, lng, limit } = req.query;
-    limit = limit ? parseInt(limit) : 100;
+    let { queryString, lat, lng, limit = 100 } = req.query;
     const coordinates = { lat, lng };
     let formatted_address;
     let nearbyProperties;
@@ -102,20 +101,6 @@ router.get('/nearby', async (req, res, next) => {
 
 //--------------------PROTECTED ROUTES (Auth required for routes below)-----------//
 router.use(verifyAuth);
-
-//get listings by User ID (creator)
-router.get('/:userId/listings', async (req, res, next) => {
-    const userId = req.params.userId;
-    let listings;
-    try {
-        let user = await User.findById(userId).populate('listings');
-        listings = user.listings;
-    } catch(err) {
-        const error = new HttpError('Could not retrieve listings', 500);
-        return next(error);
-    }
-    res.status(200).json(listings);
-})
 
 //create new property
 router.post('/new', async (req, res, next) => {
@@ -392,21 +377,6 @@ router.patch('/:userId/favorites/remove/:propertyId', async (req, res, next) => 
     }
     res.status(202).json(user.favorites);
 })
-
-//get favorite properties by User ID
-router.get('/:userId/favorites', async (req, res, next) => {
-    let favs;
-    try {
-        let user = await User.findById(req.params.userId).populate('favorites');
-        favs = user.favorites;
-        console.log(user)
-    } catch(err) {
-        const error = new HttpError('Could not retrieve favorites', 500);
-        return next(error);
-    }
-    res.status(200).json(favs);
-})
-
 
 // router.get('/all', (req, res, next) => {
 //     let formattedProps = properties.map(p => {
