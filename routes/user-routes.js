@@ -120,21 +120,4 @@ router.post('/login', async (req, res, next) => {
     });
 })
 
-router.use(verifyAuth);
-
-router.get('/:userId/properties/:listName', async (req, res, next) => {
-    const { userId, listName } = req.params;
-    let propertyList;
-    try {
-        let user = await User.findById(userId).populate(listName);
-        propertyList = user[listName]
-    } catch(err) {
-        const error = new HttpError('Could not retrieve property list', 500);
-        return next(error);
-    }
-    res.status(200).json(propertyList);
-})
-
-
-
 module.exports = router;

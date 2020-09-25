@@ -331,8 +331,30 @@ router.delete('/delete/:id', async (req, res, next) => {
     res.status(200).json({ message: 'Deleted listing.' })
 })
 
+//-------------------GET LISTINGS / FAVES-------------//
+router.get('/listings/:userId', async (req, res, next) => {
+    const { userId } = req.params;
+    let listings;
+    try {
+        listings = await Property.find({ creator: userId })
+    } catch(err) {
+        const error = new HttpError('Could not retrieve property list', 500);
+        return next(error);
+    }
+    res.status(200).json(listings);
+})
 
-
+router.get('/favorites/:userId', async (req, res, next) => {
+    const { userId } = req.params;
+    let favorites;
+    try {
+        favorites = await Property.find({ favorited_by: [ userId ]});
+    } catch(err) {
+        const error = new HttpError('Could not retrieve property list', 500);
+        return next(error);
+    }
+    res.status(200).json(favorites);
+})
 //--------------------------------FAVORITES----------------------------//
 //save favorite properties by User ID & Property ID
 router.patch('/:userId/favorites/add/:propertyId', async (req, res, next) => {
@@ -377,6 +399,8 @@ router.patch('/:userId/favorites/remove/:propertyId', async (req, res, next) => 
     }
     res.status(202).json(user.favorites);
 })
+
+
 
 // router.get('/all', (req, res, next) => {
 //     let formattedProps = properties.map(p => {
