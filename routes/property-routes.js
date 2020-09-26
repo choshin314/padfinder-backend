@@ -10,116 +10,8 @@ const { uploadFile, deleteFiles, bucketName } = require('../util/google-storage'
 const getCoordinates = require('../util/google-coordinates');
 const { Property, validateProperty } = require('../models/property-model');
 const { User } = require('../models/user-model');
-const rawProperties = require('../rawProperties/charlotte3.json')
 
-// const properties = require('../formattedProperties.json')
-
-router.get('/all', async (req, res, next) => {
-    //grab the associated User by UserId
-    const userId = "5f6e52498a5f5a3a68f69814";
-    let user = await User.findById(userId);
-    function checkValue(value, def) {
-        return (value ? value : def)
-    }
-
-    const filteredProps = rawProperties.filter(el => (
-        el.address.line && el.address.city && el.address.state_code && el.address.postal_code 
-        && el.address.lat && el.address.lon
-    ))
-    const formattedProps = filteredProps.map(el => {
-        if (el["data_source_name"] === "co-star" || el["data_source_name"] === "community_rental") {
-            return {
-                type: checkValue(el.prop_type, 'apartment'),
-                street: el.address.line, 
-                city: el.address.city,
-                state: el.address.state_code,
-                zip: el.address.postal_code,
-                neighborhood: checkValue(el.address.neighborhood_name, el.address.city),
-                latitude: el.address.lat,
-                longitude: el.address.lon,
-                beds: [ checkValue(el.community.beds_min, 1), checkValue(el.community.beds_max, 1) ],
-                baths: [ checkValue(el.community.baths_min, 1), checkValue(el.community.baths_max, 1) ],
-                size: [ checkValue(el.community.sqft_min, 0), checkValue(el.community.sqft_max, 0) ],
-                rent: [ checkValue(el.community.price_min, 0), checkValue(el.community.price_max, 0) ],
-                laundry: "in unit",
-                parking: "covered garage",
-                utilities: "electric",
-                pets:	{
-                    dogs: checkValue(el.client_display_flags.allows_dogs, true),
-                    cats: checkValue(el.client_display_flags.allows_cats, false)
-                },
-                photos:	el.photos,
-            }
-            
-        } else if (el["data_source_name"] === "unit_rental" || el["data_source_name"] === "mls") {
-            if (el.price) {
-                return {
-                    type: checkValue(el.prop_type, 'single_family'),
-                    street: el.address.line,
-                    city: el.address.city,
-                    state: el.address.state_code,
-                    zip: el.address.postal_code,
-                    neighborhood: checkValue(el.address.neighborhood_name, el.address.city),
-                    latitude: el.address.lat,
-                    longitude: el.address.lon,
-                    beds: [checkValue(el.beds, 1), checkValue(el.beds, 1)],
-                    baths: [checkValue(el.baths, 1), checkValue(el.baths, 1)],
-                    size: [checkValue(el.building_size.size, 0), checkValue(el.building_size.size, 0)],
-                    rent: [checkValue(el.price, 0), checkValue(el.price, 0)],
-                    laundry: "in unit",
-                    parking: "on street",
-                    utilities: "electric and gas",
-                    pets: { dogs: true, cats: false },
-                    photos:	el.photos
-                }
-            }
-        }
-    });
-
-    try {
-        for (let p of formattedProps) {
-            let newProperty = new Property({
-                type: p.type,
-                available_date: "2020-12-01T05:00:00.000Z",
-                details: {
-                    pet_policy: p.pets,
-                    beds: p.beds,
-                    baths: p.baths,
-                    size: p.size,
-                    rent: p.rent,
-                    neighborhood: p.neighborhood,
-                    laundry: p.laundry,
-                    utilities: p.utilities,
-                    parking: p.parking
-                },
-                address: {
-                    street: p.street,
-                    city: p.city,
-                    state: p.state,
-                    zip: p.zip
-                },
-                location: {
-                    type: "Point",
-                    coordinates: [p.longitude, p.latitude]
-                },
-                photos: p.photos,
-                creator: userId,
-                favorited_by: []
-            });
-            const sess = await mongoose.startSession();
-            sess.startTransaction();
-            await newProperty.save({ session: sess });
-            user.listings.push(newProperty); //mongoose will just push the id, not the whole property
-            await user.save({session: sess});
-            await sess.commitTransaction();
-        }
-    } catch(err) {
-        const error = new HttpError(err.message, 500);
-        return next(error);
-    }
-
-    res.json(user.listings);
-})
+const listInBulk = require('../controllers/misc-controllers');
 
 //-------------------SEND EMAIL TO PROPERTY CREATOR--------------------------//
 router.post('/inquiry', async (req, res, next) => {
@@ -508,6 +400,9 @@ router.patch('/favorites/:userId/remove/:propertyId', async (req, res, next) => 
     }
     res.status(202).json(user.favorites);
 })
+
+//---------------BULK LISTINGS---------------//
+router.post('/bulklistings', listInBulk)
 
 module.exports = router;
 
