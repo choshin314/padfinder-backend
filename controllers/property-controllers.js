@@ -64,7 +64,41 @@ const sendListingInquiry = async (req, res, next) => {
     res.status(200).json({ message: 'Message sent!'})
 }
 
+//-------------------GET PROPERTIES NEAR GEOLOCATION OR SEARCHED LOCATION-----------//
+const getNearby = async (req, res, next) => {
+    let { queryString, lat, lng, limit = 100 } = req.query;
+    const coordinates = { lat, lng };
+    let formatted_address;
+    let nearbyProperties;
+    if (queryString) {
+        const results = await getCoordinates(queryString, next);
+        coordinates.lat = results.coordinates.lat;
+        coordinates.lng = results.coordinates.lng;
+        formatted_address = results.formatted_address;
+    }
+    try {
+        nearbyProperties = await Property.find({
+            location: {
+                $near: {
+                    $maxDistance: 160000,
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [parseFloat(coordinates.lng), parseFloat(coordinates.lat)]
+                    }
+                }
+            }
+        }).limit(parseInt(limit))
+    } catch(err) {
+        console.log(err.message);
+        const error = new HttpError('Error retrieving properties, please try again', 500);
+        return next(error);
+    }
+    console.log(nearbyProperties)
+    res.status(200).json({ nearbyProperties, formatted_address, coordinates });
+}
+
 
 module.exports = {
     sendListingInquiry,
+    getNearby
 }

@@ -11,7 +11,7 @@ const getCoordinates = require('../util/google-coordinates');
 const { Property, validateProperty } = require('../models/property-model');
 const { User } = require('../models/user-model');
 
-const {sendListingInquiry} = require('../controllers/property-controllers');
+const {sendListingInquiry, getNearby} = require('../controllers/property-controllers');
 const listInBulk = require('../controllers/misc-controllers');
 
 //-------------------SEND EMAIL TO PROPERTY CREATOR--------------------------//
@@ -19,37 +19,7 @@ router.post('/inquiry', sendListingInquiry)
 
 //-------------------GET PROPERTIES NEAR GEOLOCATION OR SEARCHED LOCATION-----------//
 
-router.get('/nearby', async (req, res, next) => {
-    let { queryString, lat, lng, limit = 100 } = req.query;
-    const coordinates = { lat, lng };
-    let formatted_address;
-    let nearbyProperties;
-    if (queryString) {
-        const results = await getCoordinates(queryString, next);
-        coordinates.lat = results.coordinates.lat;
-        coordinates.lng = results.coordinates.lng;
-        formatted_address = results.formatted_address;
-    }
-    try {
-        nearbyProperties = await Property.find({
-            location: {
-                $near: {
-                    $maxDistance: 160000,
-                    $geometry: {
-                        type: "Point",
-                        coordinates: [parseFloat(coordinates.lng), parseFloat(coordinates.lat)]
-                    }
-                }
-            }
-        }).limit(parseInt(limit))
-    } catch(err) {
-        console.log(err.message);
-        const error = new HttpError('Error retrieving properties, please try again', 500);
-        return next(error);
-    }
-    console.log(nearbyProperties)
-    res.status(200).json({ nearbyProperties, formatted_address, coordinates });
-})
+router.get('/nearby', getNearby)
 
 
 //--------------------PROTECTED ROUTES (Auth required for routes below)-----------//
