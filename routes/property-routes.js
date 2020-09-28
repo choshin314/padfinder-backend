@@ -6,6 +6,7 @@ const listInBulk = require('../controllers/misc-controllers');
 const {
     sendListingInquiry,
     getNearby,
+    getSingleListing,
     createListing,
     updateListing,
     deleteListing,
@@ -20,6 +21,8 @@ const {
 router.post('/inquiry', sendListingInquiry);
 
 router.get('/nearby', getNearby);
+
+router.get('/single', getSingleListing);
 
 //--------------------PROTECTED ROUTES (Auth required for routes below)-----------//
 router.use(verifyAuth);

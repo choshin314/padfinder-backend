@@ -95,6 +95,17 @@ const getNearby = async (req, res, next) => {
     res.status(200).json({ nearbyProperties, formatted_address, coordinates });
 }
 
+//---------------------------GET SINGLE LISTING BY ID----------------------------------//
+const getSingleListing = async (req, res, next) => {
+    const propertyId = req.query.propertyId;
+    try {
+        const property = await Property.findById(propertyId);
+        res.status(200).json(property);
+    } catch(err) {
+        const error = new HttpError(err.message, 500);
+    }
+}
+
 //---------------------------CREATE NEW PROPERTY LISTING-------------------------------//
 const createListing = async (req, res, next) => {
     let parsedFormData = {
@@ -396,6 +407,7 @@ const removeFavorite = async (req, res, next) => {
 module.exports = {
     sendListingInquiry,
     getNearby,
+    getSingleListing,
     createListing,
     updateListing,
     deleteListing,
