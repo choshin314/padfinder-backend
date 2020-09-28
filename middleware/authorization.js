@@ -7,7 +7,7 @@ function verifyAuth(req, res, next) {
         if (!token) {
             throw new HttpError('Not authorized', 401);
         }
-        const decodedToken = jwt.verify(token, process.env.SECRET_KEY); 
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY); 
             //if wrong token, will throw error
             //if correct token, will return the jwt payload (userId and email)
         req.userData = { userId: decodedToken.userId, email: decodedToken.email } 

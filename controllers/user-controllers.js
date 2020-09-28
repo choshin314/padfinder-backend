@@ -58,7 +58,7 @@ const registerUser = async (req, res, next) => {
     try {
         token = await jwt.sign(
             { userId: newUser.id, email: newUser.email },
-            process.env.SECRET_KEY
+            process.env.JWT_SECRET_KEY
         ) 
     } catch(err) {
         const error = new HttpError('Registration failed, please try again later', 500)
@@ -101,7 +101,7 @@ const loginUser = async (req, res, next) => {
     try {
         token = await jwt.sign(
             { userId: matchedUser.id, email: matchedUser.email },
-            process.env.SECRET_KEY
+            process.env.JWT_SECRET_KEY
         ) 
     } catch(err) {
         const error = new HttpError('Log in failed, please try again later', 500)
