@@ -4,7 +4,7 @@ const fs = require('fs');
 const nodemailer = require('nodemailer');
 
 const HttpError = require('../models/http-error');
-const { uploadFile, deleteFiles, bucketName } = require('../util/google-storage');
+const { uploadFile, deleteFiles, uploadFileStream, bucketName } = require('../util/google-storage');
 const getCoordinates = require('../util/google-coordinates');
 const { Property, validateProperty } = require('../models/property-model');
 const { User } = require('../models/user-model');
@@ -123,20 +123,16 @@ const createListing = async (req, res, next) => {
     }
     
     //----------------------PHOTO UPLOAD-------------------//
-    let files = req.files.photos; 
-    for (const file of files) {
-        file.mv(`./uploads/images/${file.name}`)
-    }
+    let files = req.files.photos;
     try {
         for (const file of files) {
-            await uploadFile(`./uploads/images/${file.name}`)
+            await uploadFileStream(file, next);
         }
     } catch(err) {
-        const error = new HttpError('Could not upload images.  Please try again later.', 500);
+        const error = new HttpError('Could not upload images, please try again later.', 500);
         return next(error);
     }
-    files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
-
+    
     //-----------------------GET COORDINATES----------------//
     let queryString = `${street}+${city}+${state}+${zip}`;
     queryString = queryString.replace(/\s/g, '+');
@@ -221,31 +217,27 @@ const updateListing = async (req, res, next) => {
     //----------------------PHOTO UPLOAD / DELETE-------------------//
     let files = req.files ? req.files.photos : null; 
     let photosToAdd;
+
     if (files && !Array.isArray(files)) {
-        files.mv(`./uploads/images/${files.name}`);
         try {
-            await uploadFile(`./uploads/images/${files.name}`, next)
+            await uploadFileStream(files, next);
         } catch(err) {
-            const error = new HttpError('Could not upload image. Please try again later.', 500);
+            const error = new HttpError('Could not upload images, please try again later.', 500);
             return next(error);
         }
         photosToAdd = [{ href: `https://storage.googleapis.com/${bucketName}/${files.name}` }]
-        fs.unlink(`./uploads/images/${files.name}`, err => {if(err) console.log(err)})
     }
 
     if (files && Array.isArray(files)) {
-        for (const file of files) { file.mv(`./uploads/images/${file.name}`) }
         try {
-            for (const file of files) { 
-                await uploadFile(`./uploads/images/${file.name}`, next) 
-            };
+            for (const file of files) {
+                await uploadFileStream(file, next);
+            }
         } catch(err) {
-            const error = new HttpError('Could not upload images.  Please try again later.', 500);
+            const error = new HttpError('Could not upload images, please try again later.', 500);
             return next(error);
         }
         photosToAdd = files.map(file => ({ href: `https://storage.googleapis.com/${bucketName}/${file.name}` }));
-        //delete local photo files after upload to google 
-        files.forEach(file => fs.unlink(`./uploads/images/${file.name}`, err => {if(err) console.log(err)}))
     }
 
     if(toBeDeleted && toBeDeleted.length > 0) {

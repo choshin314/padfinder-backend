@@ -30,4 +30,26 @@ async function deleteFiles(filenames, next) {
     }
 }
 
-module.exports = { uploadFile, deleteFiles, bucketName }
+async function uploadFileStream(file, next) {
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(file.name);
+    const stream = blob.createWriteStream({
+        metadata: {
+            contentType: blob.mimetype
+        }
+    });
+
+    stream.on('error', err => {
+        blob.cloudStorageError = err;
+        const error = new HttpError(err.message, 500);
+        return next(error);
+    })
+
+   stream.on('finish', () => {
+        console.log('uploaded ', blob.name)
+   }) 
+
+   stream.end(file.data)
+}
+
+module.exports = { uploadFile, deleteFiles, uploadFileStream, bucketName }
