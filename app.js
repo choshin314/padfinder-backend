@@ -9,7 +9,7 @@ const propertyRoutes = require('./routes/property-routes')
 const userRoutes = require('./routes/user-routes')
 
 //------------DB-------------------------
-const dbUri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.fvtaz.mongodb.net/padfinder?retryWrites=true&w=majority`
+const dbUri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.fvtaz.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
 mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true  })
     .then(() => console.log('Connected to MongoDB'))
 
