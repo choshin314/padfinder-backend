@@ -3,7 +3,7 @@ const HttpError = require('../models/http-error')
 
 const bucketName = 'padfinder2_bucket';
 
-const storage = new Storage({keyFilename: 'googleStorageCredentials.json', projectId: 'padfinder-2'});
+const storage = new Storage({keyFilename: 'google-storage-credentials.json', projectId: 'padfinder-2'});
 
 async function uploadFile(file, next) {
     try {
